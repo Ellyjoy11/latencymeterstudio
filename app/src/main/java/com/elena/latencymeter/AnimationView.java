@@ -47,6 +47,7 @@ public class AnimationView extends View {
     float ballAngle = 0;
 
 	boolean touchActive;
+    boolean mRunMode;
 
 	Path animPath;
 	Path touchPath;
@@ -72,6 +73,7 @@ public class AnimationView extends View {
 	double latency;
 	double averageLatency;
 	double averageDispatchLatency;
+    double averageOutputLatency = 0;
 	double median, minL, maxL;
 	double stdevLatency;
 	double eventRate;
@@ -91,11 +93,14 @@ public class AnimationView extends View {
 	double hord, alpha, theta;
 
 
-	double newX = 0;
-    double newY = 0;
+	public static double newX = 0;
+    public static double newY = 0;
+    public static double prevX;
+    public static double prevY;
 	double ballA, ballB, touchA, touchB;
 	TextView tv1, tv2, tv3, tv4, tv5, tv6;
     int currFps = 59;
+    int lowEdge, upEdge;
 
 	public AnimationView(Context context) {
 		super(context);
@@ -130,6 +135,7 @@ public class AnimationView extends View {
 		screenHeight = displaymetrics.heightPixels;
 		screenDpi = displaymetrics.density;
 
+
 		cX = (screenWidth - bm_offsetX / 2 - 10) / 2;
 		cY = screenHeight - cX - 2 * bm_offsetY;
 		// cY = (screenHeight - bm_offsetY / 2 - 10) / 2;
@@ -163,7 +169,7 @@ public class AnimationView extends View {
 		wrongMove.setStrokeWidth(10);
 		wrongMove.setStyle(Paint.Style.STROKE);
 
-		count = 0;
+		count = -1;
 		touchActive = false;
 
 		point.x = (int) cX;
@@ -185,6 +191,7 @@ public class AnimationView extends View {
                 getContext(),
                 "Measuring latency,\nplease keep your finger on the ball",
                 Toast.LENGTH_LONG).show();
+
 	}
 
 	@Override
@@ -202,9 +209,17 @@ public class AnimationView extends View {
 		tv1.setText("angular speed is " + String.format("%.2f", speed)
                 + " rad/s");
 
-		if (MainActivity.clockWise) {
+        if(mRunMode) {
+            lowEdge = 1;
+        } else {
+            lowEdge = 15;
+        }
+
+
+        if (MainActivity.clockWise) {
 
 			// ////////////!!!!!!!!!!!!!//////////////////
+
 
         newX = cX + radius * Math.cos(ballAngle);
         newY = cY + radius * Math.sin(ballAngle);
@@ -217,6 +232,8 @@ public class AnimationView extends View {
 				matrix.postTranslate(pos[0] - bm_offsetX, pos[1] - bm_offsetY);
 
 				canvas.drawBitmap(bm, matrix, null);
+            prevX = newX;
+            prevY = newY;
 
 				// /calculate lines from center to ball and to touch
 				if (!((pos[0] - cX) == 0) && !((pos[1] - cY) == 0)) {
@@ -231,11 +248,12 @@ public class AnimationView extends View {
 				} else {
 					touchA = 0;
 				}
-
+/*
 				if (MainActivity.showSector) {
 					paintTouch.setColor(Color.GREEN);
 					canvas.drawLine(point.x, point.y, cX, cY, paintTouch);
 				}
+				*/
 				paintTouch.setColor(Color.GRAY);
 
 				theta = Math
@@ -325,7 +343,7 @@ public class AnimationView extends View {
 				if (speed > 0 && theta > 0 && sweepAngle < 0
 						&& (2 * touchDelta <= bm_offsetX)) {
 					latency = theta * 1000.0 / speed;
-					if (latency > 30 && latency < 220
+					if (latency > lowEdge && latency < 220
 							&& myLatency.size() < 1000) { // 30
 															// is
 															// set
@@ -334,7 +352,7 @@ public class AnimationView extends View {
 						// "cheating"
 						// samples
 						myLatency.add(latency);
-
+                        count = myLatency.size();
 					}
 				} else {
 					latency = 0;
@@ -351,10 +369,20 @@ public class AnimationView extends View {
 					tv6.setTextColor(Color.parseColor("#FFA500"));
 				}
 
-				tv2.setText("current latency: "
-						+ String.format("%.2f", latency) + " ms");
-				tv5.setText("event rate: " + String.format("%.2f", eventRate)
-						+ " Hz");
+
+            if (mRunMode) {
+                tv5.setText("event rate: N/a for auto mode");
+            } else {
+                tv5.setText("event rate: " + String.format("%.2f", eventRate)
+                        + " Hz");
+            }
+
+            if (averageOutputLatency > 0) {
+                tv2.setText("average output latency: "
+                        + String.format("%.2f", averageOutputLatency) + " ms");
+            } else {
+                tv2.setText("Use auto mode to get output latency");
+            }
 
 				if (touchActive && myLatency.size() < 1000) {
 					paintText.setColor(Color.parseColor("#FFA500"));
@@ -374,22 +402,26 @@ public class AnimationView extends View {
 					tv5.setTextColor(Color.BLACK);
 				}
 
-				tv3.setText("average: " + String.format("%.2f", averageLatency)
-						+ " ms               median: "
+				tv4.setText("average: " + String.format("%.2f", averageLatency)
+						+ " ms     median: "
 						+ String.format("%.2f", median) + " ms");
 
-				tv4.setText("min: " + String.format("%.2f", minL)
-						+ " ms    max: " + String.format("%.2f", maxL)
-						+ "    stdev: " + String.format("%.2f", stdevLatency)
+				tv6.setText("min: " + String.format("%.2f", minL)
+						+ " ms   max: " + String.format("%.2f", maxL)
+						+ "   stdev: " + String.format("%.2f", stdevLatency)
 						+ " ms");
-				tv6.setText("average dispatch latency: "
-						+ String.format("%.2f", averageDispatchLatency) + " ms");
-
+            if (mRunMode) {
+                tv3.setText("dispatch latency: N/a for auto mode");
+            } else {
+                tv3.setText("average dispatch latency: "
+                        + String.format("%.2f", averageDispatchLatency) + " ms");
+            }
             ballAngle += speed / currFps;
 
 			// /////////////////!!!!!!!!!!!////////////////////////
 		} else {
 			// //////reverse all!!!!!!!!!!!!!!!//////////
+
             newX = cX + radius * Math.cos(ballAngle);
             newY = cY + radius * Math.sin(ballAngle);
 
@@ -400,6 +432,9 @@ public class AnimationView extends View {
 				matrix.postTranslate(pos[0] - bm_offsetX, pos[1] - bm_offsetY);
 
 				canvas.drawBitmap(bm, matrix, null);
+            prevX = newX;
+            prevY = newY;
+
 				// /calculate lines from center to ball and to touch
 				if (!((pos[0] - cX) == 0) && !((pos[1] - cY) == 0)) {
 					ballA = (pos[1] - cY) / (pos[0] - cX);
@@ -413,11 +448,12 @@ public class AnimationView extends View {
 				} else {
 					touchA = 0;
 				}
-
+/*
 				if (MainActivity.showSector) {
 					paintTouch.setColor(Color.GREEN);
 					canvas.drawLine(point.x, point.y, cX, cY, paintTouch);
 				}
+				*/
 				paintTouch.setColor(Color.GRAY);
 
 				theta = Math
@@ -500,13 +536,13 @@ public class AnimationView extends View {
 				// /////////////////////
 				if (touchActive && MainActivity.showSector) {
 					canvas.drawArc(oval, startAngle, sweepAngle, true,
-							paintTouch);
+                            paintTouch);
 				}
 				// /////////////
 				if (speed > 0 && theta > 0 && sweepAngle > 0
 						&& (2 * touchDelta <= bm_offsetX)) {
 					latency = theta * 1000.0 / speed;
-					if (latency > 30 && latency < 220
+					if (latency > lowEdge && latency < 220
 							&& myLatency.size() < 1000) { // 30
 															// is
 															// set
@@ -515,7 +551,7 @@ public class AnimationView extends View {
 						// "cheating"
 						// samples
 						myLatency.add(latency);
-
+                        count = myLatency.size();
 					}
 				} else {
 					latency = 0;
@@ -532,10 +568,19 @@ public class AnimationView extends View {
 					tv6.setTextColor(Color.parseColor("#FFA500"));
 				}
 
-				tv2.setText("current latency: "
-						+ String.format("%.2f", latency) + " ms");
-				tv5.setText("event rate: " + String.format("%.2f", eventRate)
-						+ " Hz");
+            if (averageOutputLatency > 0) {
+                tv2.setText("average output latency: "
+                        + String.format("%.2f", averageOutputLatency) + " ms");
+            } else {
+                tv2.setText("Use auto mode to get output latency");
+            }
+
+            if (mRunMode) {
+                tv5.setText("event rate: N/a for auto mode");
+            } else {
+                tv5.setText("event rate: " + String.format("%.2f", eventRate)
+                        + " Hz");
+            }
 
 				if (touchActive && myLatency.size() < 1000) {
                     paintText.setColor(Color.parseColor("#FFA500"));
@@ -554,17 +599,20 @@ public class AnimationView extends View {
 					tv5.setTextColor(Color.BLACK);
 				}
 
-				tv3.setText("average: " + String.format("%.2f", averageLatency)
-						+ " ms               median: "
+				tv4.setText("average: " + String.format("%.2f", averageLatency)
+						+ " ms     median: "
 						+ String.format("%.2f", median) + " ms");
 
-				tv4.setText("min: " + String.format("%.2f", minL)
-						+ " ms    max: " + String.format("%.2f", maxL)
-						+ "    stdev: " + String.format("%.2f", stdevLatency)
+				tv6.setText("min: " + String.format("%.2f", minL)
+						+ " ms   max: " + String.format("%.2f", maxL)
+						+ "   stdev: " + String.format("%.2f", stdevLatency)
 						+ " ms");
-				tv6.setText("average dispatch latency: "
-						+ String.format("%.2f", averageDispatchLatency) + " ms");
-
+            if (mRunMode) {
+                tv3.setText("dispatch latency: N/a for auto mode");
+            } else {
+                tv3.setText("average dispatch latency: "
+                        + String.format("%.2f", averageDispatchLatency) + " ms");
+            }
                 ballAngle -= speed / currFps;
 
 			// /////////////////!!!!!!!!!!!////////////////////////
@@ -585,6 +633,7 @@ public class AnimationView extends View {
 			point.y = (int) event.getY();
 			touchActive = true;
 			myLatency.clear();
+            dispatchLatency.clear();
 			median = 0;
 			averageLatency = 0;
 			averageDispatchLatency = 0;
@@ -602,14 +651,16 @@ public class AnimationView extends View {
 			touchActive = true;
 			touchCount += event.getHistorySize();
 
-			try {
-				dispatchTime = SystemClock.uptimeMillis()
-						- event.getEventTime();
-				dispatchLatency.add(dispatchTime);
+            if (!mRunMode) {
+                try {
+                    dispatchTime = SystemClock.uptimeMillis()
+                            - event.getEventTime();
+                    dispatchLatency.add(dispatchTime);
 
-			} catch (IllegalArgumentException e) {
-				Log.d(TAG, e.toString());
-			}
+                } catch (IllegalArgumentException e) {
+                    Log.d(TAG, e.toString());
+                }
+            }
 
 			millis4 = SystemClock.elapsedRealtime();
 			eventRate = touchCount * 1000.0 / (millis4 - millis3);
@@ -621,6 +672,7 @@ public class AnimationView extends View {
 			alpha = 0;
 			theta = 0;
 			touchActive = false;
+            //count = -1;
 			// dispatchTime = 0;
 
 			if (myLatency.size() == 1000) {
@@ -635,11 +687,13 @@ public class AnimationView extends View {
 
 				}
 				averageLatency = sum * 1.0 / (myLatency.size());
-				for (int i = 0; i < dispatchLatency.size(); i++) {
-					sum2 += dispatchLatency.get(i);
+				if (!mRunMode) {
+                    for (int i = 0; i < dispatchLatency.size(); i++) {
+                        sum2 += dispatchLatency.get(i);
 
-				}
-				averageDispatchLatency = sum2 * 1.0 / (dispatchLatency.size());
+                    }
+                    averageDispatchLatency = sum2 * 1.0 / (dispatchLatency.size());
+                }
 				for (int i = 0; i < myLatency.size(); i++) {
 					devSum += Math.pow(myLatency.get(i) - averageLatency, 2);
 				}
@@ -656,6 +710,9 @@ public class AnimationView extends View {
 				} else {
 					median = numArray[middle + 1];
 				}
+                if (mRunMode) {
+                    averageOutputLatency = averageLatency;
+                }
 
 			}
 			break;
@@ -668,5 +725,9 @@ public class AnimationView extends View {
 	public void setBallSpeed(float bSpeed) {
 		speed = bSpeed;
 	}
+
+    public void setMode(boolean runMode) {
+        mRunMode = runMode;
+    }
 
 }

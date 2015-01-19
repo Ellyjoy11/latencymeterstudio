@@ -7,5 +7,6 @@
     <string name="about">About</string>
     <string name="reverse">reverse</string>
     <string name="hide">hide</string>
+    <string name="auto">auto</string>
 
 </resources>

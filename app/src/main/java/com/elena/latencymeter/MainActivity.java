@@ -5,15 +5,18 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -21,6 +24,7 @@ public class MainActivity extends Activity {
 	public static int screenHeight;
 	public static boolean clockWise;
 	public static boolean showSector;
+    public static boolean modeAuto = true;
 	public static final String TAG = "LatencyMeter";
 	public String appVersion;
 	public static int speedValue;
@@ -28,7 +32,9 @@ public class MainActivity extends Activity {
 
 	SeekBar speedBar;
 	AnimationView myView;
-	CheckBox mCheckBox, mCheckBox2;
+	CheckBox mCheckBox, mCheckBox2, mCheckBox3;
+
+    Thread mTouchThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,8 @@ public class MainActivity extends Activity {
 
 		setContentView(R.layout.activity_main);
 
+
+
 		mCheckBox = (CheckBox) findViewById(R.id.checkBox);
 		if (mCheckBox.isChecked()) {
 			clockWise = false;
@@ -58,13 +66,24 @@ public class MainActivity extends Activity {
 			showSector = true;
 		}
 
+        mCheckBox3 = (CheckBox) findViewById(R.id.checkBox3);
+        if (mCheckBox3.isChecked()) {
+            modeAuto = true;
+        } else {
+            modeAuto = false;
+        }
+
+
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
 		myView = (AnimationView) findViewById(R.id.animView);
 		float defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
 				/ (float) (speedBar.getMax());
 		myView.setBallSpeed(defaultSpeed);
+        myView.setMode(modeAuto);
 
 		speedBar.setOnSeekBarChangeListener(speedBarOnSeekBarChangeListener);
+
+
 
 	}
 
@@ -75,6 +94,10 @@ public class MainActivity extends Activity {
 		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 		screenWidth = displaymetrics.widthPixels;
 		screenHeight = displaymetrics.heightPixels;
+
+        if (modeAuto) {
+            onModeAuto();
+        }
 
 	}
 
@@ -121,6 +144,7 @@ public class MainActivity extends Activity {
 			myView.setBallSpeed(defaultSpeed);
 			AnimationView.count = 0;
 			AnimationView.distance = 0;
+            AnimationView.count = -1;
 			myView.invalidate();
 		}
 
@@ -143,7 +167,9 @@ public class MainActivity extends Activity {
 		Log.d(TAG, "direction clockWise: " + clockWise);
 		AnimationView.count = 0;
 		AnimationView.distance = 0;
+        AnimationView.count = -1;
 		myView.invalidate();
+
 	}
 
 	public void boxHideClicked(View view) {
@@ -155,5 +181,60 @@ public class MainActivity extends Activity {
 		Log.d(TAG, "show sector: " + showSector);
 
 	}
+
+    public void boxAutoClicked(View view) {
+        if (mCheckBox3.isChecked()) {
+            modeAuto = true;
+            AnimationView.count = -1;
+            //myView.invalidate();
+            //this.onResume();
+        } else {
+            modeAuto = false;
+            //AnimationView.count = 1000;
+            simulateTouch(0,0, 1000);
+        }
+        //AnimationView.count = 1000;
+        AnimationView.distance = 0;
+        //AnimationView.count = -1;
+        myView.setMode(modeAuto);
+        myView.invalidate();
+        this.onResume();
+    }
+
+    public void onModeAuto() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (modeAuto) {
+                    simulateTouch(AnimationView.prevX, AnimationView.prevY, AnimationView.count);
+                    //Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY);
+                }
+            }
+        }).start();
+    }
+
+    private void simulateTouch (double x, double y, int count) {
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+        //Log.d(TAG, "differ " + (eventTime - downTime)*1.0 + " ms" );
+        int metaState = 0;
+        int action;
+        if (count == -1) {
+            action = MotionEvent.ACTION_DOWN;
+        } else if (count < 1000 && count > -1) {
+            action = MotionEvent.ACTION_MOVE;
+        } else {
+            action = MotionEvent.ACTION_UP;
+        }
+        MotionEvent motionEvent = MotionEvent.obtain(
+                downTime,
+                eventTime,
+                action,
+                (float) x,
+                (float) y,
+                metaState);
+
+        myView.dispatchTouchEvent(motionEvent);
+    }
 
 }
