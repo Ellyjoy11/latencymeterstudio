@@ -186,6 +186,7 @@ public class MainActivity extends Activity {
         if (mCheckBox3.isChecked()) {
             modeAuto = true;
             AnimationView.count = -1;
+            AnimationView.isAutoDone = false;
             //myView.invalidate();
             //this.onResume();
         } else {
@@ -194,7 +195,7 @@ public class MainActivity extends Activity {
             simulateTouch(0,0, 1000);
         }
         //AnimationView.count = 1000;
-        AnimationView.distance = 0;
+        //AnimationView.distance = 0;
         //AnimationView.count = -1;
         myView.setMode(modeAuto);
         myView.invalidate();
@@ -205,7 +206,7 @@ public class MainActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (modeAuto) {
+                while (modeAuto && !AnimationView.isAutoDone) {
                     simulateTouch(AnimationView.prevX, AnimationView.prevY, AnimationView.count);
                     //Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY);
                 }

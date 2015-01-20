@@ -97,6 +97,7 @@ public class AnimationView extends View {
     public static double newY = 0;
     public static double prevX;
     public static double prevY;
+    public static boolean isAutoDone = false;
 	double ballA, ballB, touchA, touchB;
 	TextView tv1, tv2, tv3, tv4, tv5, tv6;
     int currFps = 59;
@@ -219,7 +220,8 @@ public class AnimationView extends View {
         if (MainActivity.clockWise) {
 
 			// ////////////!!!!!!!!!!!!!//////////////////
-
+            prevX = newX;
+            prevY = newY;
 
         newX = cX + radius * Math.cos(ballAngle);
         newY = cY + radius * Math.sin(ballAngle);
@@ -232,8 +234,8 @@ public class AnimationView extends View {
 				matrix.postTranslate(pos[0] - bm_offsetX, pos[1] - bm_offsetY);
 
 				canvas.drawBitmap(bm, matrix, null);
-            prevX = newX;
-            prevY = newY;
+            //prevX = newX;
+            //prevY = newY;
 
 				// /calculate lines from center to ball and to touch
 				if (!((pos[0] - cX) == 0) && !((pos[1] - cY) == 0)) {
@@ -369,9 +371,10 @@ public class AnimationView extends View {
 					tv6.setTextColor(Color.parseColor("#FFA500"));
 				}
 
-
-            if (mRunMode) {
+            if (mRunMode && !isAutoDone) {
                 tv5.setText("event rate: N/a for auto mode");
+            } else if (isAutoDone && eventRate == 0) {
+                tv5.setText("event rate: N/a yet");
             } else {
                 tv5.setText("event rate: " + String.format("%.2f", eventRate)
                         + " Hz");
@@ -410,8 +413,10 @@ public class AnimationView extends View {
 						+ " ms   max: " + String.format("%.2f", maxL)
 						+ "   stdev: " + String.format("%.2f", stdevLatency)
 						+ " ms");
-            if (mRunMode) {
+            if (mRunMode && !isAutoDone) {
                 tv3.setText("dispatch latency: N/a for auto mode");
+            } else if (isAutoDone && averageDispatchLatency == 0) {
+                tv3.setText("dispatch latency: N/a yet");
             } else {
                 tv3.setText("average dispatch latency: "
                         + String.format("%.2f", averageDispatchLatency) + " ms");
@@ -421,6 +426,8 @@ public class AnimationView extends View {
 			// /////////////////!!!!!!!!!!!////////////////////////
 		} else {
 			// //////reverse all!!!!!!!!!!!!!!!//////////
+            prevX = newX;
+            prevY = newY;
 
             newX = cX + radius * Math.cos(ballAngle);
             newY = cY + radius * Math.sin(ballAngle);
@@ -432,8 +439,8 @@ public class AnimationView extends View {
 				matrix.postTranslate(pos[0] - bm_offsetX, pos[1] - bm_offsetY);
 
 				canvas.drawBitmap(bm, matrix, null);
-            prevX = newX;
-            prevY = newY;
+            //prevX = newX;
+            //prevY = newY;
 
 				// /calculate lines from center to ball and to touch
 				if (!((pos[0] - cX) == 0) && !((pos[1] - cY) == 0)) {
@@ -575,8 +582,10 @@ public class AnimationView extends View {
                 tv2.setText("Use auto mode to get output latency");
             }
 
-            if (mRunMode) {
+            if (mRunMode && !isAutoDone) {
                 tv5.setText("event rate: N/a for auto mode");
+            } else if (isAutoDone && eventRate == 0) {
+                tv5.setText("event rate: N/a yet");
             } else {
                 tv5.setText("event rate: " + String.format("%.2f", eventRate)
                         + " Hz");
@@ -607,8 +616,10 @@ public class AnimationView extends View {
 						+ " ms   max: " + String.format("%.2f", maxL)
 						+ "   stdev: " + String.format("%.2f", stdevLatency)
 						+ " ms");
-            if (mRunMode) {
+            if (mRunMode && !isAutoDone) {
                 tv3.setText("dispatch latency: N/a for auto mode");
+            } else if (isAutoDone && averageDispatchLatency == 0) {
+                tv3.setText("dispatch latency: N/a yet");
             } else {
                 tv3.setText("average dispatch latency: "
                         + String.format("%.2f", averageDispatchLatency) + " ms");
@@ -651,7 +662,7 @@ public class AnimationView extends View {
 			touchActive = true;
 			touchCount += event.getHistorySize();
 
-            if (!mRunMode) {
+
                 try {
                     dispatchTime = SystemClock.uptimeMillis()
                             - event.getEventTime();
@@ -660,7 +671,7 @@ public class AnimationView extends View {
                 } catch (IllegalArgumentException e) {
                     Log.d(TAG, e.toString());
                 }
-            }
+
 
 			millis4 = SystemClock.elapsedRealtime();
 			eventRate = touchCount * 1000.0 / (millis4 - millis3);
@@ -687,7 +698,7 @@ public class AnimationView extends View {
 
 				}
 				averageLatency = sum * 1.0 / (myLatency.size());
-				if (!mRunMode) {
+				if (!mRunMode || isAutoDone) {
                     for (int i = 0; i < dispatchLatency.size(); i++) {
                         sum2 += dispatchLatency.get(i);
 
@@ -710,8 +721,9 @@ public class AnimationView extends View {
 				} else {
 					median = numArray[middle + 1];
 				}
-                if (mRunMode) {
+                if (mRunMode && !isAutoDone) {
                     averageOutputLatency = averageLatency;
+                    isAutoDone = true;
                 }
 
 			}
