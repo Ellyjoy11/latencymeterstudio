@@ -18,6 +18,7 @@ import android.graphics.Path.Direction;
 import android.graphics.PathMeasure;
 import android.graphics.Point;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -47,7 +48,7 @@ public class AnimationView extends View {
     float ballAngle = 0;
 
 	boolean touchActive;
-    boolean mRunMode;
+    //boolean mRunMode;
 
 	Path animPath;
 	Path touchPath;
@@ -64,7 +65,7 @@ public class AnimationView extends View {
 	float[] tan;
 
 	Matrix matrix;
-	public static int count;
+	public static int count = -1;
 	long millis1, millis2, millis3, millis4;
 	long time360 = 0;
 	long dispatchTime = 0;
@@ -80,17 +81,19 @@ public class AnimationView extends View {
 
 	List<Double> myLatency = new ArrayList<Double>();
 	List<Long> dispatchLatency = new ArrayList<Long>();
+    List<Double> outputLatency = new ArrayList<Double>();
 
 	public static int screenWidth;
 	public static int screenHeight;
 	public static float screenDpi;
+    public static int displayTransitionDelay = 13;
 
 	int cX, cY;
 	int radius;
 	int touchDistance;
 	int touchDelta;
 
-	double hord, alpha, theta;
+	double alpha, theta;
 
 
 	public static double newX = 0;
@@ -99,9 +102,9 @@ public class AnimationView extends View {
     public static double prevY;
     public static boolean isAutoDone = false;
 	double ballA, ballB, touchA, touchB;
-	TextView tv1, tv2, tv3, tv4, tv5, tv6;
+	TextView tv1, tv2, tv3, tv4, tv5, tv6, tv7;
     int currFps = 59;
-    int lowEdge, upEdge;
+    int lowEdge;
 
 	public AnimationView(Context context) {
 		super(context);
@@ -170,8 +173,8 @@ public class AnimationView extends View {
 		wrongMove.setStrokeWidth(10);
 		wrongMove.setStyle(Paint.Style.STROKE);
 
-		count = -1;
-		touchActive = false;
+		//count = -1;
+		//touchActive = false;
 
 		point.x = (int) cX;
 		point.y = (int) cY;
@@ -181,7 +184,7 @@ public class AnimationView extends View {
 		pathMeasure = new PathMeasure(animPath, false);
 		pathLength = pathMeasure.getLength();
 
-		distance = 0;
+		//distance = 0;
 
 		pos = new float[2];
 		tan = new float[2];
@@ -190,7 +193,7 @@ public class AnimationView extends View {
 
         Toast.makeText(
                 getContext(),
-                "Measuring latency,\nplease keep your finger on the ball",
+                "When output latency row becomes green,\nplease keep your finger on the ball",
                 Toast.LENGTH_LONG).show();
 
 	}
@@ -204,17 +207,18 @@ public class AnimationView extends View {
 		tv4 = (TextView) this.getRootView().findViewById(R.id.textView4);
 		tv5 = (TextView) this.getRootView().findViewById(R.id.textView5);
 		tv6 = (TextView) this.getRootView().findViewById(R.id.textView6);
+        tv7 = (TextView) this.getRootView().findViewById(R.id.textView7);
 
 		canvas.drawPath(animPath, paint);
 
 		tv1.setText("angular speed is " + String.format("%.2f", speed)
                 + " rad/s");
 
-        if(mRunMode) {
-            lowEdge = 1;
-        } else {
-            lowEdge = 15;
-        }
+        //if(!isAutoDone) {
+        //    lowEdge = 1;
+        //} else {
+            lowEdge = 20;
+        //}
 
 
         if (MainActivity.clockWise) {
@@ -319,8 +323,8 @@ public class AnimationView extends View {
 
 					paintText.setColor(Color.RED);
 					paintTouch.setColor(Color.RED);
-					tv2.setTextColor(Color.RED);
-					tv5.setTextColor(Color.RED);
+					tv4.setTextColor(Color.RED);
+					tv6.setTextColor(Color.RED);
 					if (touchActive && (2 * touchDelta > bm_offsetX)) {
 						canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
 								wrongMove);
@@ -332,12 +336,12 @@ public class AnimationView extends View {
 
 					paintText.setColor(Color.BLACK);
 					paintTouch.setColor(Color.GRAY);
-					tv2.setTextColor(Color.BLACK);
-					tv5.setTextColor(Color.BLACK);
+					tv4.setTextColor(Color.parseColor("#FFA500"));
+					tv6.setTextColor(Color.parseColor("#FFA500"));
 				}
 
 				// /////////////////////
-				if (touchActive && MainActivity.showSector) {
+				if (touchActive && MainActivity.showSector && isAutoDone) {
 					canvas.drawArc(oval, startAngle, sweepAngle, true,
 							paintTouch);
 				}
@@ -345,8 +349,14 @@ public class AnimationView extends View {
 				if (speed > 0 && theta > 0 && sweepAngle < 0
 						&& (2 * touchDelta <= bm_offsetX)) {
 					latency = theta * 1000.0 / speed;
+                    if (latency > lowEdge && latency < 50
+                            && outputLatency.size() < 200 && !isAutoDone) { // 30
+
+                        outputLatency.add(latency);
+                        count = outputLatency.size();
+                    }
 					if (latency > lowEdge && latency < 220
-							&& myLatency.size() < 1000) { // 30
+							&& myLatency.size() < 1000 && isAutoDone) { // 30
 															// is
 															// set
 															// to
@@ -354,7 +364,7 @@ public class AnimationView extends View {
 						// "cheating"
 						// samples
 						myLatency.add(latency);
-                        count = myLatency.size();
+                        //count = myLatency.size();
 					}
 				} else {
 					latency = 0;
@@ -364,16 +374,16 @@ public class AnimationView extends View {
 					tv3.setTextColor(Color.parseColor("#008000"));
 					tv4.setTextColor(Color.parseColor("#008000"));
 					tv6.setTextColor(Color.parseColor("#008000"));
+                    tv2.setTextColor(Color.parseColor("#008000"));
 				} else {
 
 					tv3.setTextColor(Color.parseColor("#FFA500"));
 					tv4.setTextColor(Color.parseColor("#FFA500"));
 					tv6.setTextColor(Color.parseColor("#FFA500"));
+                    tv2.setTextColor(Color.parseColor("#FFA500"));
 				}
 
-            if (mRunMode && !isAutoDone) {
-                tv5.setText("event rate: N/a for auto mode");
-            } else if (isAutoDone && eventRate == 0) {
+            if (eventRate == 0) {
                 tv5.setText("event rate: N/a yet");
             } else {
                 tv5.setText("event rate: " + String.format("%.2f", eventRate)
@@ -381,42 +391,47 @@ public class AnimationView extends View {
             }
 
             if (averageOutputLatency > 0) {
-                tv2.setText("average output latency: "
+                tv7.setText("average output latency: "
                         + String.format("%.2f", averageOutputLatency) + " ms");
+                tv7.setTextColor(Color.parseColor("#008000"));
+                tv7.setTypeface(Typeface.DEFAULT);
+               // isAutoDone = true;
             } else {
-                tv2.setText("Use auto mode to get output latency");
+                tv7.setText("Measuring output latency, please wait...");
+                tv7.setTextColor(Color.RED);
+                tv7.setTypeface(Typeface.DEFAULT_BOLD);
             }
 
-				if (touchActive && myLatency.size() < 1000) {
+				if (touchActive && myLatency.size() < 1000 && isAutoDone) {
 					paintText.setColor(Color.parseColor("#FFA500"));
 					paintText.setStrokeWidth(2);
 					paintText.setTextSize(80 * screenDpi / 4);
 					canvas.drawText("" + (1000 - myLatency.size()), cX - 40,
 							cY, paintText);
-				} else if (touchActive) {
+				} else if (touchActive && isAutoDone) {
 					paintText.setColor(Color.parseColor("#008000"));
 					paintText.setStrokeWidth(4);
 					paintText.setTextSize(100 * screenDpi / 4);
 					canvas.drawText("DONE", cX - 80, cY, paintText);
 				}
 
-				if (median > 0) {
-					tv2.setTextColor(Color.BLACK);
-					tv5.setTextColor(Color.BLACK);
-				}
-
-				tv4.setText("average: " + String.format("%.2f", averageLatency)
-						+ " ms     median: "
+				tv4.setText("total average: " + String.format("%.2f", averageLatency)
+						+ " ms   median: "
 						+ String.format("%.2f", median) + " ms");
+                if (averageLatency > 0) {
+                    tv2.setText("average IC latency: " + String.format("%.2f", averageLatency
+                            - averageOutputLatency - averageDispatchLatency) + " ms");
+                } else {
+                    tv2.setText("average IC latency: N/a yet");
+                }
 
 				tv6.setText("min: " + String.format("%.2f", minL)
 						+ " ms   max: " + String.format("%.2f", maxL)
 						+ "   stdev: " + String.format("%.2f", stdevLatency)
 						+ " ms");
-            if (mRunMode && !isAutoDone) {
-                tv3.setText("dispatch latency: N/a for auto mode");
-            } else if (isAutoDone && averageDispatchLatency == 0) {
-                tv3.setText("dispatch latency: N/a yet");
+
+            if (averageDispatchLatency == 0) {
+                tv3.setText("average dispatch latency: N/a yet");
             } else {
                 tv3.setText("average dispatch latency: "
                         + String.format("%.2f", averageDispatchLatency) + " ms");
@@ -523,8 +538,8 @@ public class AnimationView extends View {
 
 					paintText.setColor(Color.RED);
 					paintTouch.setColor(Color.RED);
-					tv2.setTextColor(Color.RED);
-					tv5.setTextColor(Color.RED);
+					tv4.setTextColor(Color.RED);
+					tv6.setTextColor(Color.RED);
 					if (touchActive && (2 * touchDelta > bm_offsetX)) {
 						canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
 								wrongMove);
@@ -536,21 +551,30 @@ public class AnimationView extends View {
 
 					paintText.setColor(Color.BLACK);
 					paintTouch.setColor(Color.GRAY);
-					tv2.setTextColor(Color.BLACK);
-					tv5.setTextColor(Color.BLACK);
+					tv4.setTextColor(Color.parseColor("#FFA500"));
+					tv6.setTextColor(Color.parseColor("#FFA500"));
 				}
 
 				// /////////////////////
-				if (touchActive && MainActivity.showSector) {
+				if (touchActive && MainActivity.showSector && isAutoDone) {
 					canvas.drawArc(oval, startAngle, sweepAngle, true,
                             paintTouch);
 				}
 				// /////////////
+
+
 				if (speed > 0 && theta > 0 && sweepAngle > 0
 						&& (2 * touchDelta <= bm_offsetX)) {
 					latency = theta * 1000.0 / speed;
+
+                    if (latency > lowEdge && latency < 50
+                            && outputLatency.size() < 200 && !isAutoDone) { // 30
+
+                        outputLatency.add(latency);
+                        count = outputLatency.size();
+                    }
 					if (latency > lowEdge && latency < 220
-							&& myLatency.size() < 1000) { // 30
+							&& myLatency.size() < 1000 && isAutoDone) { // 30
 															// is
 															// set
 															// to
@@ -558,68 +582,72 @@ public class AnimationView extends View {
 						// "cheating"
 						// samples
 						myLatency.add(latency);
-                        count = myLatency.size();
+                        //count = myLatency.size();
 					}
 				} else {
 					latency = 0;
 				}
 				if (median > 0) {
-
-					tv3.setTextColor(Color.parseColor("#008000"));
+                    tv3.setTextColor(Color.parseColor("#008000"));
 					tv4.setTextColor(Color.parseColor("#008000"));
 					tv6.setTextColor(Color.parseColor("#008000"));
+                    tv2.setTextColor(Color.parseColor("#008000"));
 				} else {
 
 					tv3.setTextColor(Color.parseColor("#FFA500"));
 					tv4.setTextColor(Color.parseColor("#FFA500"));
 					tv6.setTextColor(Color.parseColor("#FFA500"));
+                    tv2.setTextColor(Color.parseColor("#FFA500"));
 				}
 
             if (averageOutputLatency > 0) {
-                tv2.setText("average output latency: "
+                tv7.setText("average output latency: "
                         + String.format("%.2f", averageOutputLatency) + " ms");
+                tv7.setTextColor(Color.parseColor("#008000"));
+                tv7.setTypeface(Typeface.DEFAULT);
+               // isAutoDone = true;
             } else {
-                tv2.setText("Use auto mode to get output latency");
+                tv7.setText("Measuring output latency, please wait...");
+                tv7.setTextColor(Color.RED);
+                tv7.setTypeface(Typeface.DEFAULT_BOLD);
             }
 
-            if (mRunMode && !isAutoDone) {
-                tv5.setText("event rate: N/a for auto mode");
-            } else if (isAutoDone && eventRate == 0) {
+            if (eventRate == 0) {
                 tv5.setText("event rate: N/a yet");
             } else {
                 tv5.setText("event rate: " + String.format("%.2f", eventRate)
                         + " Hz");
             }
 
-				if (touchActive && myLatency.size() < 1000) {
+				if (touchActive && myLatency.size() < 1000 && isAutoDone) {
                     paintText.setColor(Color.parseColor("#FFA500"));
                     paintText.setStrokeWidth(3);
                     paintText.setTextSize(80 * screenDpi / 4);
                     canvas.drawText("" + (1000 - myLatency.size()), cX - 40,
                             cY, paintText);
-                } else if (touchActive) {
+                } else if (touchActive && isAutoDone) {
                     paintText.setColor(Color.parseColor("#008000"));
                     paintText.setStrokeWidth(6);
                     paintText.setTextSize(110 * screenDpi / 4);
                     canvas.drawText("DONE", cX - 80, cY, paintText);
                 }
-				if (median > 0) {
-					tv2.setTextColor(Color.BLACK);
-					tv5.setTextColor(Color.BLACK);
-				}
 
-				tv4.setText("average: " + String.format("%.2f", averageLatency)
-						+ " ms     median: "
+				tv4.setText("total average: " + String.format("%.2f", averageLatency)
+						+ " ms   median: "
 						+ String.format("%.2f", median) + " ms");
+            if (averageLatency > 0) {
+                tv2.setText("average IC latency: " + String.format("%.2f", averageLatency
+                        - averageOutputLatency - averageDispatchLatency) + " ms");
+            } else {
+                tv2.setText("average IC latency: N/a yet");
+            }
 
 				tv6.setText("min: " + String.format("%.2f", minL)
 						+ " ms   max: " + String.format("%.2f", maxL)
 						+ "   stdev: " + String.format("%.2f", stdevLatency)
 						+ " ms");
-            if (mRunMode && !isAutoDone) {
-                tv3.setText("dispatch latency: N/a for auto mode");
-            } else if (isAutoDone && averageDispatchLatency == 0) {
-                tv3.setText("dispatch latency: N/a yet");
+            if (averageDispatchLatency == 0) {
+                tv3.setText("average dispatch latency: N/a yet");
             } else {
                 tv3.setText("average dispatch latency: "
                         + String.format("%.2f", averageDispatchLatency) + " ms");
@@ -645,24 +673,28 @@ public class AnimationView extends View {
 			touchActive = true;
 			myLatency.clear();
             dispatchLatency.clear();
+            outputLatency.clear();
 			median = 0;
 			averageLatency = 0;
 			averageDispatchLatency = 0;
+            if (!isAutoDone) {
+                averageOutputLatency = 0;
+            }
 			minL = 0;
 			maxL = 0;
 			stdevLatency = 0;
 			eventRate = 0;
 			touchCount = 0;
+            Log.d(TAG, "start counting, autoDone " + isAutoDone);
 			millis3 = SystemClock.elapsedRealtime();
 			break;
 		case MotionEvent.ACTION_MOVE:
 			point.x = (int) event.getX();
 			point.y = (int) event.getY();
+            touchActive = true;
 
-			touchActive = true;
-			touchCount += event.getHistorySize();
-
-
+            if (isAutoDone) {
+                touchCount += event.getHistorySize();
                 try {
                     dispatchTime = SystemClock.uptimeMillis()
                             - event.getEventTime();
@@ -672,10 +704,9 @@ public class AnimationView extends View {
                     Log.d(TAG, e.toString());
                 }
 
-
-			millis4 = SystemClock.elapsedRealtime();
-			eventRate = touchCount * 1000.0 / (millis4 - millis3);
-
+                millis4 = SystemClock.elapsedRealtime();
+                eventRate = touchCount * 1000.0 / (millis4 - millis3);
+            }
 			break;
 		case MotionEvent.ACTION_UP:
 			point.x = (int) cX;
@@ -683,8 +714,34 @@ public class AnimationView extends View {
 			alpha = 0;
 			theta = 0;
 			touchActive = false;
+            Log.d(TAG, "touch up happened");
             //count = -1;
 			// dispatchTime = 0;
+
+            if (!isAutoDone && outputLatency.size() == 200) {
+
+                double sumOutput = 0;
+                double[] numArrayOutput = new double[outputLatency.size()];
+                for (int i = 50; i < outputLatency.size(); i++) {
+                    sumOutput += outputLatency.get(i);
+                    numArrayOutput[i] = outputLatency.get(i);
+
+                }
+                averageOutputLatency = displayTransitionDelay + sumOutput * 1.0 / (outputLatency.size() - 50);
+                //averageOutputLatency = sumOutput * 1.0 / (outputLatency.size());
+                    prevX = cX;
+                    prevY = cY;
+                isAutoDone = true;
+                count = 500;
+                simulateTouchCancel();
+                Log.d(TAG, "touch up is done");
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //setMode(false);
+            }
 
 			if (myLatency.size() == 1000) {
 
@@ -698,7 +755,7 @@ public class AnimationView extends View {
 
 				}
 				averageLatency = sum * 1.0 / (myLatency.size());
-				if (!mRunMode || isAutoDone) {
+				if (isAutoDone) {
                     for (int i = 0; i < dispatchLatency.size(); i++) {
                         sum2 += dispatchLatency.get(i);
 
@@ -721,11 +778,12 @@ public class AnimationView extends View {
 				} else {
 					median = numArray[middle + 1];
 				}
+                /*
                 if (mRunMode && !isAutoDone) {
                     averageOutputLatency = averageLatency;
                     isAutoDone = true;
                 }
-
+                */
 			}
 			break;
 
@@ -738,8 +796,26 @@ public class AnimationView extends View {
 		speed = bSpeed;
 	}
 
-    public void setMode(boolean runMode) {
-        mRunMode = runMode;
+    //public void setMode(boolean runMode) {
+    //    mRunMode = runMode;
+    //}
+
+    private void simulateTouchCancel () {
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+        //Log.d(TAG, "differ " + (eventTime - downTime)*1.0 + " ms" );
+        int metaState = 0;
+        int action = MotionEvent.ACTION_CANCEL;
+
+        MotionEvent motionEvent = MotionEvent.obtain(
+                downTime,
+                eventTime,
+                action,
+                cX,
+                cY,
+                metaState);
+
+        this.dispatchTouchEvent(motionEvent);
     }
 
 }

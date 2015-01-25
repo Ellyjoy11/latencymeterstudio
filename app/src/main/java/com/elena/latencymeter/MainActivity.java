@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
 	public static int screenHeight;
 	public static boolean clockWise;
 	public static boolean showSector;
-    public static boolean modeAuto = true;
+    //public static boolean modeAuto = true;
 	public static final String TAG = "LatencyMeter";
 	public String appVersion;
 	public static int speedValue;
@@ -66,20 +66,13 @@ public class MainActivity extends Activity {
 			showSector = true;
 		}
 
-        mCheckBox3 = (CheckBox) findViewById(R.id.checkBox3);
-        if (mCheckBox3.isChecked()) {
-            modeAuto = true;
-        } else {
-            modeAuto = false;
-        }
-
-
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
 		myView = (AnimationView) findViewById(R.id.animView);
 		float defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
 				/ (float) (speedBar.getMax());
 		myView.setBallSpeed(defaultSpeed);
-        myView.setMode(modeAuto);
+        //modeAuto = true;
+        //myView.setMode(modeAuto);
 
 		speedBar.setOnSeekBarChangeListener(speedBarOnSeekBarChangeListener);
 
@@ -94,10 +87,8 @@ public class MainActivity extends Activity {
 		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 		screenWidth = displaymetrics.widthPixels;
 		screenHeight = displaymetrics.heightPixels;
-
-        if (modeAuto) {
-            onModeAuto();
-        }
+        //AnimationView.isAutoDone = false;
+        onModeAuto();
 
 	}
 
@@ -142,10 +133,12 @@ public class MainActivity extends Activity {
 			float defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
 					/ (float) (speedBar.getMax());
 			myView.setBallSpeed(defaultSpeed);
-			AnimationView.count = 0;
-			AnimationView.distance = 0;
+            //modeAuto = true;
+            //myView.setMode(modeAuto);
+            AnimationView.isAutoDone = false;
             AnimationView.count = -1;
 			myView.invalidate();
+            onModeAuto();
 		}
 
 		@Override
@@ -165,11 +158,12 @@ public class MainActivity extends Activity {
 			clockWise = true;
 		}
 		Log.d(TAG, "direction clockWise: " + clockWise);
-		AnimationView.count = 0;
-		AnimationView.distance = 0;
+        //modeAuto = true;
+        //myView.setMode(modeAuto);
+		AnimationView.isAutoDone = false;
         AnimationView.count = -1;
 		myView.invalidate();
-
+        onModeAuto();
 	}
 
 	public void boxHideClicked(View view) {
@@ -182,34 +176,14 @@ public class MainActivity extends Activity {
 
 	}
 
-    public void boxAutoClicked(View view) {
-        if (mCheckBox3.isChecked()) {
-            modeAuto = true;
-            AnimationView.count = -1;
-            AnimationView.isAutoDone = false;
-            //myView.invalidate();
-            //this.onResume();
-        } else {
-            modeAuto = false;
-            //AnimationView.count = 1000;
-            simulateTouch(0,0, 1000);
-        }
-        //AnimationView.count = 1000;
-        //AnimationView.distance = 0;
-        //AnimationView.count = -1;
-        myView.setMode(modeAuto);
-        myView.invalidate();
-        this.onResume();
-    }
-
     public void onModeAuto() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (modeAuto && !AnimationView.isAutoDone) {
+                while (!AnimationView.isAutoDone) {
                     simulateTouch(AnimationView.prevX, AnimationView.prevY, AnimationView.count);
-                    //Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY);
-                }
+                    //Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY + "count " + AnimationView.count);
+                    }
             }
         }).start();
     }
@@ -219,13 +193,18 @@ public class MainActivity extends Activity {
         long eventTime = SystemClock.uptimeMillis();
         //Log.d(TAG, "differ " + (eventTime - downTime)*1.0 + " ms" );
         int metaState = 0;
-        int action;
+        int action; // = MotionEvent.ACTION_UP;
         if (count == -1) {
             action = MotionEvent.ACTION_DOWN;
-        } else if (count < 1000 && count > -1) {
+        } else if (count < 200 && count > -1) {
             action = MotionEvent.ACTION_MOVE;
-        } else {
+        } else if (count == 200) {
             action = MotionEvent.ACTION_UP;
+           //modeAuto = false;
+            //Log.d(TAG, "mode set to false");
+            //x = 0; y = 0;
+        } else {
+            action = MotionEvent.ACTION_CANCEL;
         }
         MotionEvent motionEvent = MotionEvent.obtain(
                 downTime,
@@ -236,6 +215,14 @@ public class MainActivity extends Activity {
                 metaState);
 
         myView.dispatchTouchEvent(motionEvent);
+    }
+
+    @Override
+    public void onPause() {
+        //modeAuto = true;
+        AnimationView.isAutoDone = false;
+        AnimationView.count = -1;
+        super.onPause();
     }
 
 }
