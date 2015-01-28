@@ -193,7 +193,7 @@ public class AnimationView extends View {
 
         Toast.makeText(
                 getContext(),
-                "When output latency row becomes green,\nplease keep your finger on the ball",
+                "When output latency row becomes green,\nkeep your finger on the ball",
                 Toast.LENGTH_LONG).show();
 
 	}
@@ -685,7 +685,7 @@ public class AnimationView extends View {
 			stdevLatency = 0;
 			eventRate = 0;
 			touchCount = 0;
-            Log.d(TAG, "start counting, autoDone " + isAutoDone);
+            //Log.d(TAG, "start counting, autoDone " + isAutoDone);
 			millis3 = SystemClock.elapsedRealtime();
 			break;
 		case MotionEvent.ACTION_MOVE:
@@ -714,7 +714,7 @@ public class AnimationView extends View {
 			alpha = 0;
 			theta = 0;
 			touchActive = false;
-            Log.d(TAG, "touch up happened");
+            //Log.d(TAG, "touch up happened");
             //count = -1;
 			// dispatchTime = 0;
 
@@ -733,14 +733,19 @@ public class AnimationView extends View {
                     prevY = cY;
                 isAutoDone = true;
                 count = 500;
-                simulateTouchCancel();
-                Log.d(TAG, "touch up is done");
+                //the hack to fix "sticky touch" issue when Auto Mode is done
+                for (int i=0; i < 5; i++) {
+                    simulateTouchCancel(1);
+                    simulateTouchCancel(0);
+                }
+                //Log.d(TAG, "touch up is done");
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 //setMode(false);
+
             }
 
 			if (myLatency.size() == 1000) {
@@ -800,12 +805,18 @@ public class AnimationView extends View {
     //    mRunMode = runMode;
     //}
 
-    private void simulateTouchCancel () {
+    private void simulateTouchCancel (int simMode) {
         long downTime = SystemClock.uptimeMillis();
         long eventTime = SystemClock.uptimeMillis();
         //Log.d(TAG, "differ " + (eventTime - downTime)*1.0 + " ms" );
         int metaState = 0;
-        int action = MotionEvent.ACTION_CANCEL;
+        int action;//
+        // = MotionEvent.ACTION_CANCEL;
+        if (simMode == 1) {
+            action = MotionEvent.ACTION_DOWN;
+        } else {
+            action = MotionEvent.ACTION_UP;
+        }
 
         MotionEvent motionEvent = MotionEvent.obtain(
                 downTime,

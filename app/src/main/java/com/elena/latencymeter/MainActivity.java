@@ -24,17 +24,13 @@ public class MainActivity extends Activity {
 	public static int screenHeight;
 	public static boolean clockWise;
 	public static boolean showSector;
-    //public static boolean modeAuto = true;
 	public static final String TAG = "LatencyMeter";
 	public String appVersion;
-	public static int speedValue;
 	public final String MYPREFS = "my shared prefs";
 
 	SeekBar speedBar;
 	AnimationView myView;
-	CheckBox mCheckBox, mCheckBox2, mCheckBox3;
-
-    Thread mTouchThread;
+	CheckBox mCheckBox, mCheckBox2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +153,7 @@ public class MainActivity extends Activity {
 		} else {
 			clockWise = true;
 		}
-		Log.d(TAG, "direction clockWise: " + clockWise);
+		//Log.d(TAG, "direction clockWise: " + clockWise);
         //modeAuto = true;
         //myView.setMode(modeAuto);
 		AnimationView.isAutoDone = false;
@@ -172,7 +168,7 @@ public class MainActivity extends Activity {
 		} else {
 			showSector = true;
 		}
-		Log.d(TAG, "show sector: " + showSector);
+		//Log.d(TAG, "show sector: " + showSector);
 
 	}
 
