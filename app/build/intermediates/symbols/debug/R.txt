@@ -5,7 +5,8 @@ int drawable ic_ball_2 0x7f020001
 int drawable ic_launcher 0x7f020002
 int drawable soccer_ball2 0x7f020003
 int drawable tennis_ball 0x7f020004
-int id about 0x7f09000f
+int id about 0x7f090010
+int id action_settings 0x7f09000f
 int id animView 0x7f090000
 int id checkBox 0x7f090003
 int id checkBox2 0x7f090008
@@ -26,7 +27,7 @@ int menu main 0x7f080000
 int string about 0x7f060000
 int string action_settings 0x7f060001
 int string app_name 0x7f060002
-int string auto 0x7f060003
+int string displayDelay 0x7f060003
 int string hello_world 0x7f060004
 int string hide 0x7f060005
 int string reverse 0x7f060006

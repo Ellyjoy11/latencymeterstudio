@@ -7,6 +7,6 @@
     <string name="about">About</string>
     <string name="reverse">reverse</string>
     <string name="hide">hide</string>
-    <string name="auto">auto</string>
+    <string name="displayDelay">Display transmission delay</string>
 
 </resources>

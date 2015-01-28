@@ -3,10 +3,12 @@ package com.elena.latencymeter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -14,8 +16,11 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -24,9 +29,12 @@ public class MainActivity extends Activity {
 	public static int screenHeight;
 	public static boolean clockWise;
 	public static boolean showSector;
+    public static int displayTransmissionDelay;
 	public static final String TAG = "LatencyMeter";
 	public String appVersion;
-	public final String MYPREFS = "my shared prefs";
+	//public final String MYPREFS = "my shared prefs";
+    SharedPreferences prefs;
+    private String tmp;
 
 	SeekBar speedBar;
 	AnimationView myView;
@@ -36,6 +44,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        prefs = getPreferences(MODE_PRIVATE);
 
 		try {
 			appVersion = this.getPackageManager().getPackageInfo(
@@ -83,6 +92,9 @@ public class MainActivity extends Activity {
 		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 		screenWidth = displaymetrics.widthPixels;
 		screenHeight = displaymetrics.heightPixels;
+        tmp = prefs.getString("displayTransmissionDelay", "13");
+        displayTransmissionDelay = Integer.parseInt(tmp);
+
         //AnimationView.isAutoDone = false;
         onModeAuto();
 
@@ -115,7 +127,52 @@ public class MainActivity extends Activity {
 			AlertDialog dialog = builder.create();
 			dialog.show();
 			return true;
-		} else {
+		} else if (item.getItemId() == R.id.action_settings) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Display transmission delay, ms");
+
+            final EditText input = new EditText(MainActivity.this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            input.setLayoutParams(lp);
+            input.setInputType(InputType.TYPE_CLASS_NUMBER);
+            tmp = prefs.getString("displayTransmissionDelay", "13");
+            input.setText(tmp);
+            builder.setView(input);
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String tmpValue = input.getText().toString();
+                    //Log.d(TAG, "value is " + tmpValue + " ms");
+                    SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
+                    editor.putString("displayTransmissionDelay", input.getText().toString());
+                    editor.commit();
+
+                    displayTransmissionDelay = Integer.parseInt(input.getText().toString());
+                    //Log.d(TAG, "integer value is " + displayTransmissionDelay + " ms");
+
+                    AnimationView.isAutoDone = false;
+                    AnimationView.count = -1;
+                    myView.invalidate();
+                    onModeAuto();
+                }
+            });
+            builder.setNegativeButton("Cancel",
+                    new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            return true;
+        } else {
 			return super.onOptionsItemSelected(item);
 		}
 

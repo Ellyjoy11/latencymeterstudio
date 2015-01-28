@@ -86,7 +86,6 @@ public class AnimationView extends View {
 	public static int screenWidth;
 	public static int screenHeight;
 	public static float screenDpi;
-    public static int displayTransitionDelay = 13;
 
 	int cX, cY;
 	int radius;
@@ -727,7 +726,7 @@ public class AnimationView extends View {
                     numArrayOutput[i] = outputLatency.get(i);
 
                 }
-                averageOutputLatency = displayTransitionDelay + sumOutput * 1.0 / (outputLatency.size() - 50);
+                averageOutputLatency = MainActivity.displayTransmissionDelay + sumOutput * 1.0 / (outputLatency.size() - 50);
                 //averageOutputLatency = sumOutput * 1.0 / (outputLatency.size());
                     prevX = cX;
                     prevY = cY;
