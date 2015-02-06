@@ -12,7 +12,8 @@
     <string name="displayDelay">Display transmission delay</string>
     <string name="hello_world">Hello world!</string>
     <string name="hide">hide</string>
-    <string name="reverse">reverse</string>
+    <string name="latency">latency:</string>
+    <string name="reverse">CCW</string>
     <!-- From: file:/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/src/main/res/values/styles.xml -->
     <eat-comment/>
     <style name="AppBaseTheme" parent="android:Theme.Light">

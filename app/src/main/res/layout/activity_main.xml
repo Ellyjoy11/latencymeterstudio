@@ -14,109 +14,165 @@
         android:layout_height="match_parent" />
 
     <LinearLayout
-        android:id="@+id/lineBar"
+        android:id="@+id/lineBar1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingLeft="5.0dip"
+
         android:paddingRight="5.0dip" >
 
         <SeekBar
             android:id="@+id/speedBar"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="7"
+            android:layout_weight="4"
             android:max="1000"
             android:progress="455" />
 
-        <CheckBox
-            android:id="@+id/checkBox"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/textViewSpeed"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:onClick="boxClicked"
-            android:paddingRight="7.0dip" />
+            android:layout_alignParentLeft="true"
+            android:layout_weight="1" />
+
     </LinearLayout>
 
     <TextView
-        android:id="@+id/revText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/lineBar"
-        android:text="@string/reverse" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
+        android:id="@+id/textViewLat"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/lineBar" />
+        android:layout_below="@id/lineBar1"
+        android:text="@string/latency"/>
 
     <LinearLayout
         android:id="@+id/lineBar2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textView1"
+        android:layout_below="@id/textViewLat"
         android:orientation="horizontal"
         android:paddingRight="5.0dip" >
 
         <TextView
-            android:id="@+id/textView5"
-            android:layout_width="match_parent"
+            android:id="@+id/textViewIC"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="7" />
+            android:layout_weight="5"
+            android:paddingLeft="8dp"/>
+
+        <TextView
+            android:id="@+id/textViewMin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4" />
+
+        <CheckBox
+            android:id="@+id/checkBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="boxClicked"
+            android:paddingRight="4.0dip" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lineBar3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineBar2"
+        android:orientation="horizontal"
+        android:paddingRight="5.0dip" >
+
+        <TextView
+            android:id="@+id/textViewDisp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:paddingLeft="12dp"/>
+
+        <TextView
+            android:id="@+id/textViewMed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4" />
+
+        <TextView
+            android:id="@+id/revText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/reverse" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lineBar4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineBar3"
+        android:orientation="horizontal"
+        android:paddingRight="5.0dip" >
+
+        <TextView
+            android:id="@+id/textViewOut"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:paddingLeft="16dp"/>
+
+        <TextView
+            android:id="@+id/textViewMax"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4" />
 
         <CheckBox
             android:id="@+id/checkBox2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:onClick="boxHideClicked"
-            android:paddingRight="7.0dip" />
+            android:paddingRight="4.0dip" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lineBar5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineBar4"
+        android:orientation="horizontal"
+        android:paddingRight="5.0dip" >
+
+        <TextView
+            android:id="@+id/textViewTotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:paddingLeft="20dp"/>
+
+        <TextView
+            android:id="@+id/textViewStd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4" />
+
+        <TextView
+            android:id="@+id/hideText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/hide" />
+
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/lineBar2" />
-
-    <TextView
-        android:id="@+id/hideText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/lineBar2"
-        android:text="@string/hide" />
-
-    <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/textViewEvRate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/textView2" />
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/textView7" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/textView4" />
-
-    <TextView
-        android:id="@id/textView7"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/textView3" />
+        android:layout_below="@id/lineBar5" />
 
 </RelativeLayout>

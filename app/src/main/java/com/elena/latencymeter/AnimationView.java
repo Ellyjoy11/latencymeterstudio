@@ -101,7 +101,8 @@ public class AnimationView extends View {
     public static double prevY;
     public static boolean isAutoDone = false;
 	double ballA, ballB, touchA, touchB;
-	TextView tv1, tv2, tv3, tv4, tv5, tv6, tv7;
+	TextView tvSpeed, tvLat, tvIC, tvMin, tvMax, tvMed, tvStd;
+    TextView tvDisp, tvOut, tvTotal, tvEvRate;
     int currFps = 59;
     int lowEdge;
 
@@ -200,24 +201,28 @@ public class AnimationView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 
-		tv1 = (TextView) this.getRootView().findViewById(R.id.textView1);
-		tv2 = (TextView) this.getRootView().findViewById(R.id.textView2);
-		tv3 = (TextView) this.getRootView().findViewById(R.id.textView3);
-		tv4 = (TextView) this.getRootView().findViewById(R.id.textView4);
-		tv5 = (TextView) this.getRootView().findViewById(R.id.textView5);
-		tv6 = (TextView) this.getRootView().findViewById(R.id.textView6);
-        tv7 = (TextView) this.getRootView().findViewById(R.id.textView7);
+		tvSpeed = (TextView) this.getRootView().findViewById(R.id.textViewSpeed);
+		tvLat = (TextView) this.getRootView().findViewById(R.id.textViewLat);
+		tvIC = (TextView) this.getRootView().findViewById(R.id.textViewIC);
+		tvDisp = (TextView) this.getRootView().findViewById(R.id.textViewDisp);
+		tvOut = (TextView) this.getRootView().findViewById(R.id.textViewOut);
+		tvTotal = (TextView) this.getRootView().findViewById(R.id.textViewTotal);
+        tvEvRate = (TextView) this.getRootView().findViewById(R.id.textViewEvRate);
+        tvMin = (TextView) this.getRootView().findViewById(R.id.textViewMin);
+        tvMed = (TextView) this.getRootView().findViewById(R.id.textViewMed);
+        tvMax = (TextView) this.getRootView().findViewById(R.id.textViewMax);
+        tvStd = (TextView) this.getRootView().findViewById(R.id.textViewStd);
 
 		canvas.drawPath(animPath, paint);
 
-		tv1.setText("angular speed is " + String.format("%.2f", speed)
+		tvSpeed.setText("speed " + String.format("%.2f", speed)
                 + " rad/s");
 
-        //if(!isAutoDone) {
-        //    lowEdge = 1;
-        //} else {
-            lowEdge = 20;
-        //}
+        if(!isAutoDone) {
+           lowEdge = 5;
+        } else {
+            lowEdge = 30;
+        }
 
 
         if (MainActivity.clockWise) {
@@ -322,8 +327,11 @@ public class AnimationView extends View {
 
 					paintText.setColor(Color.RED);
 					paintTouch.setColor(Color.RED);
-					tv4.setTextColor(Color.RED);
-					tv6.setTextColor(Color.RED);
+					tvTotal.setTextColor(Color.RED);
+					tvMin.setTextColor(Color.RED);
+                    tvMed.setTextColor(Color.RED);
+                    tvMax.setTextColor(Color.RED);
+                    tvStd.setTextColor(Color.RED);
 					if (touchActive && (2 * touchDelta > bm_offsetX)) {
 						canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
 								wrongMove);
@@ -335,8 +343,11 @@ public class AnimationView extends View {
 
 					paintText.setColor(Color.BLACK);
 					paintTouch.setColor(Color.GRAY);
-					tv4.setTextColor(Color.parseColor("#FFA500"));
-					tv6.setTextColor(Color.parseColor("#FFA500"));
+					tvTotal.setTextColor(Color.parseColor("#FFA500"));
+					tvMin.setTextColor(Color.parseColor("#FFA500"));
+                    tvMed.setTextColor(Color.parseColor("#FFA500"));
+                    tvMax.setTextColor(Color.parseColor("#FFA500"));
+                    tvStd.setTextColor(Color.parseColor("#FFA500"));
 				}
 
 				// /////////////////////
@@ -370,35 +381,41 @@ public class AnimationView extends View {
 				}
 				if (median > 0) {
 
-					tv3.setTextColor(Color.parseColor("#008000"));
-					tv4.setTextColor(Color.parseColor("#008000"));
-					tv6.setTextColor(Color.parseColor("#008000"));
-                    tv2.setTextColor(Color.parseColor("#008000"));
+					tvDisp.setTextColor(Color.parseColor("#008000"));
+					tvTotal.setTextColor(Color.parseColor("#008000"));
+					tvMin.setTextColor(Color.parseColor("#008000"));
+                    tvMed.setTextColor(Color.parseColor("#008000"));
+                    tvMax.setTextColor(Color.parseColor("#008000"));
+                    tvStd.setTextColor(Color.parseColor("#008000"));
+                    tvIC.setTextColor(Color.parseColor("#008000"));
 				} else {
 
-					tv3.setTextColor(Color.parseColor("#FFA500"));
-					tv4.setTextColor(Color.parseColor("#FFA500"));
-					tv6.setTextColor(Color.parseColor("#FFA500"));
-                    tv2.setTextColor(Color.parseColor("#FFA500"));
+					tvDisp.setTextColor(Color.parseColor("#FFA500"));
+					tvTotal.setTextColor(Color.parseColor("#FFA500"));
+					tvMin.setTextColor(Color.parseColor("#FFA500"));
+                    tvMed.setTextColor(Color.parseColor("#FFA500"));
+                    tvMax.setTextColor(Color.parseColor("#FFA500"));
+                    tvStd.setTextColor(Color.parseColor("#FFA500"));
+                    tvIC.setTextColor(Color.parseColor("#FFA500"));
 				}
 
             if (eventRate == 0) {
-                tv5.setText("event rate: N/a yet");
+                tvEvRate.setText("event rate: --");
             } else {
-                tv5.setText("event rate: " + String.format("%.2f", eventRate)
+                tvEvRate.setText("event rate: " + String.format("%.2f", eventRate)
                         + " Hz");
             }
 
             if (averageOutputLatency > 0) {
-                tv7.setText("average output latency: "
+                tvOut.setText("output: "
                         + String.format("%.2f", averageOutputLatency) + " ms");
-                tv7.setTextColor(Color.parseColor("#008000"));
-                tv7.setTypeface(Typeface.DEFAULT);
+                tvOut.setTextColor(Color.parseColor("#008000"));
+                tvOut.setTypeface(Typeface.DEFAULT);
                // isAutoDone = true;
             } else {
-                tv7.setText("Measuring output latency, please wait...");
-                tv7.setTextColor(Color.RED);
-                tv7.setTypeface(Typeface.DEFAULT_BOLD);
+                tvOut.setText("Please wait...");
+                tvOut.setTextColor(Color.RED);
+                tvOut.setTypeface(Typeface.DEFAULT_BOLD);
             }
 
 				if (touchActive && myLatency.size() < 1000 && isAutoDone) {
@@ -414,25 +431,29 @@ public class AnimationView extends View {
 					canvas.drawText("DONE", cX - 80, cY, paintText);
 				}
 
-				tv4.setText("total average: " + String.format("%.2f", averageLatency)
-						+ " ms   median: "
-						+ String.format("%.2f", median) + " ms");
+            if (averageLatency > 0) {
+                tvTotal.setTypeface(Typeface.DEFAULT_BOLD);
+            } else {
+                tvTotal.setTypeface(Typeface.DEFAULT);
+            }
+				tvTotal.setText("total: " + String.format("%.2f", averageLatency)
+						+ " ms");
                 if (averageLatency > 0) {
-                    tv2.setText("average IC latency: " + String.format("%.2f", averageLatency
+                    tvIC.setText("IC/Kernel: " + String.format("%.2f", averageLatency
                             - averageOutputLatency - averageDispatchLatency) + " ms");
                 } else {
-                    tv2.setText("average IC latency: N/a yet");
+                    tvIC.setText("IC/Kernel: --");
                 }
 
-				tv6.setText("min: " + String.format("%.2f", minL)
-						+ " ms   max: " + String.format("%.2f", maxL)
-						+ "   stdev: " + String.format("%.2f", stdevLatency)
-						+ " ms");
+			tvMin.setText("min: " + String.format("%.2f", minL) + " ms");
+            tvMax.setText("max: " + String.format("%.2f", maxL) + " ms");
+            tvMed.setText("median: " + String.format("%.2f", median) + " ms");
+            tvStd.setText("stdev: " + String.format("%.2f", stdevLatency) + " ms");
 
             if (averageDispatchLatency == 0) {
-                tv3.setText("average dispatch latency: N/a yet");
+                tvDisp.setText("dispatch: --");
             } else {
-                tv3.setText("average dispatch latency: "
+                tvDisp.setText("dispatch: "
                         + String.format("%.2f", averageDispatchLatency) + " ms");
             }
             ballAngle += speed / currFps;
@@ -537,8 +558,11 @@ public class AnimationView extends View {
 
 					paintText.setColor(Color.RED);
 					paintTouch.setColor(Color.RED);
-					tv4.setTextColor(Color.RED);
-					tv6.setTextColor(Color.RED);
+					tvTotal.setTextColor(Color.RED);
+					tvMin.setTextColor(Color.RED);
+                    tvMed.setTextColor(Color.RED);
+                    tvMax.setTextColor(Color.RED);
+                    tvStd.setTextColor(Color.RED);
 					if (touchActive && (2 * touchDelta > bm_offsetX)) {
 						canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
 								wrongMove);
@@ -550,8 +574,11 @@ public class AnimationView extends View {
 
 					paintText.setColor(Color.BLACK);
 					paintTouch.setColor(Color.GRAY);
-					tv4.setTextColor(Color.parseColor("#FFA500"));
-					tv6.setTextColor(Color.parseColor("#FFA500"));
+					tvTotal.setTextColor(Color.parseColor("#FFA500"));
+					tvMin.setTextColor(Color.parseColor("#FFA500"));
+                    tvMed.setTextColor(Color.parseColor("#FFA500"));
+                    tvMax.setTextColor(Color.parseColor("#FFA500"));
+                    tvStd.setTextColor(Color.parseColor("#FFA500"));
 				}
 
 				// /////////////////////
@@ -587,34 +614,40 @@ public class AnimationView extends View {
 					latency = 0;
 				}
 				if (median > 0) {
-                    tv3.setTextColor(Color.parseColor("#008000"));
-					tv4.setTextColor(Color.parseColor("#008000"));
-					tv6.setTextColor(Color.parseColor("#008000"));
-                    tv2.setTextColor(Color.parseColor("#008000"));
+                    tvDisp.setTextColor(Color.parseColor("#008000"));
+					tvTotal.setTextColor(Color.parseColor("#008000"));
+					tvMin.setTextColor(Color.parseColor("#008000"));
+                    tvMed.setTextColor(Color.parseColor("#008000"));
+                    tvMax.setTextColor(Color.parseColor("#008000"));
+                    tvStd.setTextColor(Color.parseColor("#008000"));
+                    tvIC.setTextColor(Color.parseColor("#008000"));
 				} else {
 
-					tv3.setTextColor(Color.parseColor("#FFA500"));
-					tv4.setTextColor(Color.parseColor("#FFA500"));
-					tv6.setTextColor(Color.parseColor("#FFA500"));
-                    tv2.setTextColor(Color.parseColor("#FFA500"));
+					tvDisp.setTextColor(Color.parseColor("#FFA500"));
+					tvTotal.setTextColor(Color.parseColor("#FFA500"));
+					tvMin.setTextColor(Color.parseColor("#FFA500"));
+                    tvMed.setTextColor(Color.parseColor("#FFA500"));
+                    tvMax.setTextColor(Color.parseColor("#FFA500"));
+                    tvStd.setTextColor(Color.parseColor("#FFA500"));
+                    tvIC.setTextColor(Color.parseColor("#FFA500"));
 				}
 
             if (averageOutputLatency > 0) {
-                tv7.setText("average output latency: "
+                tvOut.setText("output: "
                         + String.format("%.2f", averageOutputLatency) + " ms");
-                tv7.setTextColor(Color.parseColor("#008000"));
-                tv7.setTypeface(Typeface.DEFAULT);
+                tvOut.setTextColor(Color.parseColor("#008000"));
+                tvOut.setTypeface(Typeface.DEFAULT);
                // isAutoDone = true;
             } else {
-                tv7.setText("Measuring output latency, please wait...");
-                tv7.setTextColor(Color.RED);
-                tv7.setTypeface(Typeface.DEFAULT_BOLD);
+                tvOut.setText("Please wait...");
+                tvOut.setTextColor(Color.RED);
+                tvOut.setTypeface(Typeface.DEFAULT_BOLD);
             }
 
             if (eventRate == 0) {
-                tv5.setText("event rate: N/a yet");
+                tvEvRate.setText("event rate: --");
             } else {
-                tv5.setText("event rate: " + String.format("%.2f", eventRate)
+                tvEvRate.setText("event rate: " + String.format("%.2f", eventRate)
                         + " Hz");
             }
 
@@ -630,25 +663,30 @@ public class AnimationView extends View {
                     paintText.setTextSize(110 * screenDpi / 4);
                     canvas.drawText("DONE", cX - 80, cY, paintText);
                 }
+                if (averageLatency > 0) {
+                    tvTotal.setTypeface(Typeface.DEFAULT_BOLD);
+                } else {
+                    tvTotal.setTypeface(Typeface.DEFAULT);
+                }
+				tvTotal.setText("total: " + String.format("%.2f", averageLatency)
+                        + " ms");
 
-				tv4.setText("total average: " + String.format("%.2f", averageLatency)
-						+ " ms   median: "
-						+ String.format("%.2f", median) + " ms");
             if (averageLatency > 0) {
-                tv2.setText("average IC latency: " + String.format("%.2f", averageLatency
+                tvIC.setText("IC/Kernel: " + String.format("%.2f", averageLatency
                         - averageOutputLatency - averageDispatchLatency) + " ms");
             } else {
-                tv2.setText("average IC latency: N/a yet");
+                tvIC.setText("IC/Kernel: --");
             }
 
-				tv6.setText("min: " + String.format("%.2f", minL)
-						+ " ms   max: " + String.format("%.2f", maxL)
-						+ "   stdev: " + String.format("%.2f", stdevLatency)
-						+ " ms");
+            tvMin.setText("min: " + String.format("%.2f", minL) + " ms");
+            tvMax.setText("max: " + String.format("%.2f", maxL) + " ms");
+            tvMed.setText("median: " + String.format("%.2f", median) + " ms");
+            tvStd.setText("stdev: " + String.format("%.2f", stdevLatency) + " ms");
+
             if (averageDispatchLatency == 0) {
-                tv3.setText("average dispatch latency: N/a yet");
+                tvDisp.setText("dispatch: --");
             } else {
-                tv3.setText("average dispatch latency: "
+                tvDisp.setText("dispatch: "
                         + String.format("%.2f", averageDispatchLatency) + " ms");
             }
                 ballAngle -= speed / currFps;
