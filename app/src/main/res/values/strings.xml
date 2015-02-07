@@ -8,6 +8,14 @@
     <string name="reverse">CCW</string>
     <string name="hide">hide</string>
     <string name="latency">latency:</string>
+    <string name="ic">IC/Kernel:</string>
+    <string name="disp">dispatch:</string>
+    <string name="output">output:</string>
+    <string name="total">total:</string>
+    <string name="min">min:</string>
+    <string name="median">median:</string>
+    <string name="max">max:</string>
+    <string name="stdev">stdev:</string>
     <string name="displayDelay">Display transmission delay</string>
 
 </resources>

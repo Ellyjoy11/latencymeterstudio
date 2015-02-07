@@ -25,7 +25,7 @@
             android:id="@+id/speedBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
+            android:layout_weight="3.9"
             android:max="1000"
             android:progress="455" />
 
@@ -34,7 +34,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_weight="1" />
+            android:layout_weight="1.1" />
 
     </LinearLayout>
 
@@ -55,17 +55,35 @@
         android:paddingRight="5.0dip" >
 
         <TextView
+            android:id="@+id/textViewIC_w"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.7"
+            android:paddingLeft="8dp"
+            android:gravity="right"
+            android:text="@string/ic"/>
+
+        <TextView
             android:id="@+id/textViewIC"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:paddingLeft="8dp"/>
+            android:layout_weight="2.5"
+            android:paddingLeft="2dp"/>
+
+        <TextView
+            android:id="@+id/textViewMin_w"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.8"
+            android:gravity="right"
+            android:text="@string/min" />
 
         <TextView
             android:id="@+id/textViewMin"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4" />
+            android:layout_weight="2.5"
+            android:paddingLeft="2dp"/>
 
         <CheckBox
             android:id="@+id/checkBox"
@@ -86,17 +104,35 @@
         android:paddingRight="5.0dip" >
 
         <TextView
+            android:id="@+id/textViewDisp_w"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.7"
+            android:paddingLeft="8dp"
+            android:gravity="right"
+            android:text="@string/disp"/>
+
+        <TextView
             android:id="@+id/textViewDisp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:paddingLeft="12dp"/>
+            android:layout_weight="2.5"
+            android:paddingLeft="2dp"/>
+
+        <TextView
+            android:id="@+id/textViewMed_w"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.8"
+            android:gravity="right"
+            android:text="@string/median"/>
 
         <TextView
             android:id="@+id/textViewMed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4" />
+            android:layout_weight="2.5"
+            android:paddingLeft="2dp"/>
 
         <TextView
             android:id="@+id/revText"
@@ -116,17 +152,35 @@
         android:paddingRight="5.0dip" >
 
         <TextView
+            android:id="@+id/textViewOut_w"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.7"
+            android:paddingLeft="8dp"
+            android:gravity="right"
+            android:text="@string/output"/>
+
+        <TextView
             android:id="@+id/textViewOut"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:paddingLeft="16dp"/>
+            android:layout_weight="2.5"
+            android:paddingLeft="2dp"/>
+
+        <TextView
+            android:id="@+id/textViewMax_w"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.8"
+            android:gravity="right"
+            android:text="@string/max"/>
 
         <TextView
             android:id="@+id/textViewMax"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4" />
+            android:layout_weight="2.5"
+            android:paddingLeft="2dp"/>
 
         <CheckBox
             android:id="@+id/checkBox2"
@@ -147,17 +201,35 @@
         android:paddingRight="5.0dip" >
 
         <TextView
+            android:id="@+id/textViewTotal_w"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.7"
+            android:paddingLeft="8dp"
+            android:gravity="right"
+            android:text="@string/total"/>
+
+        <TextView
             android:id="@+id/textViewTotal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:paddingLeft="20dp"/>
+            android:layout_weight="2.5"
+            android:paddingLeft="2dp"/>
+
+        <TextView
+            android:id="@+id/textViewStd_w"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.8"
+            android:gravity="right"
+            android:text="@string/stdev"/>
 
         <TextView
             android:id="@+id/textViewStd"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4" />
+            android:layout_weight="2.5"
+            android:paddingLeft="2dp"/>
 
         <TextView
             android:id="@+id/hideText"
