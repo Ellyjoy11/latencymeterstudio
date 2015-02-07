@@ -33,7 +33,7 @@ import android.widget.Toast;
 public class AnimationView extends View {
 
 	public static final String TAG = "LatencyMeter";
-	Paint paint, paintText, paintTouch, paintStat;
+	Paint paint, paintText, paintTouch, paintStat, autoPaint;
 	Paint wrongMove;
 
 	Bitmap bm;
@@ -88,14 +88,15 @@ public class AnimationView extends View {
 	public static float screenDpi;
 
 	int cX, cY;
-	int radius;
+	int radius, radMin, radMax;
 	int touchDistance;
 	int touchDelta;
 
 	double alpha, theta;
 
+    float autoX1, autoX2, autoY1, autoY2;
 
-	public static double newX = 0;
+    public static double newX = 0;
     public static double newY = 0;
     public static double prevX;
     public static double prevY;
@@ -145,11 +146,18 @@ public class AnimationView extends View {
 		// cY = (screenHeight - bm_offsetY / 2 - 10) / 2;
 
 		radius = cX - bm_offsetX;
+        radMin = radius - bm_offsetX / 2;
+        radMax = radius + bm_offsetX / 2;
 
 		paint = new Paint();
 		paint.setColor(Color.BLUE);
 		paint.setStrokeWidth(bm_offsetX);
 		paint.setStyle(Paint.Style.STROKE);
+
+        autoPaint = new Paint();
+        autoPaint.setColor(Color.GRAY);
+        autoPaint.setStrokeWidth(bm_offsetX/5);
+        autoPaint.setStyle(Paint.Style.STROKE);
 
 		paintTouch = new Paint();
 		paintTouch.setColor(Color.GRAY);
@@ -193,7 +201,7 @@ public class AnimationView extends View {
 
         Toast.makeText(
                 getContext(),
-                "When output latency row becomes green,\nkeep your finger on the ball",
+                "When the ball appears,\nkeep your finger on it",
                 Toast.LENGTH_LONG).show();
 
 	}
@@ -234,14 +242,24 @@ public class AnimationView extends View {
         newX = cX + radius * Math.cos(ballAngle);
         newY = cY + radius * Math.sin(ballAngle);
 
+            if (!isAutoDone) {
+                autoX1 = (float)(cX + radMin * Math.cos(ballAngle));
+                autoY1 = (float)(cY + radMin * Math.sin(ballAngle));
+                autoX2 = (float)(cX + radMax * Math.cos(ballAngle));
+                autoY2 = (float)(cY + radMax * Math.sin(ballAngle));
+                canvas.drawLine(autoX1, autoY1, autoX2, autoY2, autoPaint);
+            }
+
 
                 pos[0] = (float) newX;
                 pos[1] = (float) newY;
 				matrix.reset();
 
+            if (isAutoDone) {
 				matrix.postTranslate(pos[0] - bm_offsetX, pos[1] - bm_offsetY);
 
-				canvas.drawBitmap(bm, matrix, null);
+                    canvas.drawBitmap(bm, matrix, null);
+                }
             //prevX = newX;
             //prevY = newY;
 
@@ -413,7 +431,7 @@ public class AnimationView extends View {
                 tvOut.setTypeface(Typeface.DEFAULT);
                // isAutoDone = true;
             } else {
-                tvOut.setText("Please wait...");
+                tvOut.setText("output: --");
                 tvOut.setTextColor(Color.RED);
                 tvOut.setTypeface(Typeface.DEFAULT_BOLD);
             }
@@ -467,13 +485,24 @@ public class AnimationView extends View {
             newX = cX + radius * Math.cos(ballAngle);
             newY = cY + radius * Math.sin(ballAngle);
 
+            if (!isAutoDone) {
+                autoX1 = (float)(cX + radMin * Math.cos(ballAngle));
+                autoY1 = (float)(cY + radMin * Math.sin(ballAngle));
+                autoX2 = (float)(cX + radMax * Math.cos(ballAngle));
+                autoY2 = (float)(cY + radMax * Math.sin(ballAngle));
+                canvas.drawLine(autoX1, autoY1, autoX2, autoY2, autoPaint);
+            }
+
 
             pos[0] = (float) newX;
             pos[1] = (float) newY;
             matrix.reset();
-				matrix.postTranslate(pos[0] - bm_offsetX, pos[1] - bm_offsetY);
 
-				canvas.drawBitmap(bm, matrix, null);
+            if (isAutoDone) {
+                matrix.postTranslate(pos[0] - bm_offsetX, pos[1] - bm_offsetY);
+
+                canvas.drawBitmap(bm, matrix, null);
+            }
             //prevX = newX;
             //prevY = newY;
 
@@ -639,7 +668,7 @@ public class AnimationView extends View {
                 tvOut.setTypeface(Typeface.DEFAULT);
                // isAutoDone = true;
             } else {
-                tvOut.setText("Please wait...");
+                tvOut.setText("output: --");
                 tvOut.setTextColor(Color.RED);
                 tvOut.setTypeface(Typeface.DEFAULT_BOLD);
             }
@@ -771,15 +800,16 @@ public class AnimationView extends View {
                 isAutoDone = true;
                 count = 500;
                 //the hack to fix "sticky touch" issue when Auto Mode is done
-                for (int i=0; i < 5; i++) {
+                for (int i=0; i < 7; i++) {
                     simulateTouchCancel(1);
                     simulateTouchCancel(0);
-                }
-                //Log.d(TAG, "touch up is done");
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+
+                    //Log.d(TAG, "touch up is done");
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 //setMode(false);
 
