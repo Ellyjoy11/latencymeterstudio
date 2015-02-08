@@ -239,7 +239,7 @@ public class AnimationView extends View {
         if(!isAutoDone) {
            lowEdge = 5;
         } else {
-            lowEdge = 30;
+            lowEdge = 50;
         }
 
 

@@ -188,9 +188,10 @@ public class MainActivity extends Activity {
 			myView.setBallSpeed(defaultSpeed);
             //modeAuto = true;
             //myView.setMode(modeAuto);
-            AnimationView.isAutoDone = false;
-            AnimationView.count = -1;
+            //AnimationView.isAutoDone = false;
+            //AnimationView.count = -1;
 			myView.invalidate();
+
             onModeAuto();
 		}
 
@@ -213,8 +214,8 @@ public class MainActivity extends Activity {
 		//Log.d(TAG, "direction clockWise: " + clockWise);
         //modeAuto = true;
         //myView.setMode(modeAuto);
-		AnimationView.isAutoDone = false;
-        AnimationView.count = -1;
+		//AnimationView.isAutoDone = false;
+        //AnimationView.count = -1;
 		myView.invalidate();
         onModeAuto();
 	}

@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="3.9"
             android:max="1000"
-            android:progress="455" />
+            android:progress="545" />
 
         <TextView
             android:id="@+id/textViewSpeed"
@@ -39,12 +39,20 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/textViewEvRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/lineBar1"/>
+
+    <TextView
         android:id="@+id/textViewLat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/lineBar1"
-        android:text="@string/latency"/>
+        android:layout_below="@id/textViewEvRate"
+        android:text="@string/latency"
+        android:layout_marginTop="4dp"/>
 
     <LinearLayout
         android:id="@+id/lineBar2"
@@ -240,12 +248,5 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textViewEvRate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/lineBar5"
-        android:layout_marginTop="4dp"/>
 
 </RelativeLayout><!-- From: file:/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/src/main/res/layout/activity_main.xml -->
