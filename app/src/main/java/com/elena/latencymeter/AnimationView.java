@@ -489,20 +489,16 @@ public class AnimationView extends View {
             if (averageLatency > 0) {
                 tvTotal.setTypeface(Typeface.DEFAULT_BOLD);
                 tvTotal_w.setTypeface(Typeface.DEFAULT_BOLD);
+                tvIC.setText(String.format("%.2f", averageLatency
+                        - averageOutputLatency - averageDispatchLatency) + " ms");
+                tvTotal.setText(String.format("%.2f", averageLatency)
+                        + " ms");
             } else {
                 tvTotal.setTypeface(Typeface.DEFAULT);
                 tvTotal_w.setTypeface(Typeface.DEFAULT);
+                tvIC.setText(" --");
+                tvTotal.setText(" --");
             }
-
-                if (averageLatency > 0) {
-                    tvIC.setText(String.format("%.2f", averageLatency
-                            - averageOutputLatency - averageDispatchLatency) + " ms");
-                    tvTotal.setText(String.format("%.2f", averageLatency)
-                            + " ms");
-                } else {
-                    tvIC.setText(" --");
-                    tvTotal.setText(" --");
-                }
 
 			tvMin.setText(String.format("%.2f", minL) + " ms");
             tvMax.setText(String.format("%.2f", maxL) + " ms");
@@ -762,20 +758,16 @@ public class AnimationView extends View {
                 if (averageLatency > 0) {
                     tvTotal.setTypeface(Typeface.DEFAULT_BOLD);
                     tvTotal_w.setTypeface(Typeface.DEFAULT_BOLD);
+                    tvIC.setText(String.format("%.2f", averageLatency
+                            - averageOutputLatency - averageDispatchLatency) + " ms");
+                    tvTotal.setText(String.format("%.2f", averageLatency)
+                            + " ms");
                 } else {
                     tvTotal.setTypeface(Typeface.DEFAULT);
                     tvTotal_w.setTypeface(Typeface.DEFAULT);
+                    tvIC.setText(" --");
+                    tvTotal.setText(" --");
                 }
-
-            if (averageLatency > 0) {
-                tvIC.setText(String.format("%.2f", averageLatency
-                        - averageOutputLatency - averageDispatchLatency) + " ms");
-                tvTotal.setText(String.format("%.2f", averageLatency)
-                        + " ms");
-            } else {
-                tvIC.setText(" --");
-                tvTotal.setText(" --");
-            }
 
             tvMin.setText(String.format("%.2f", minL) + " ms");
             tvMax.setText(String.format("%.2f", maxL) + " ms");
