@@ -1,9 +1,5 @@
 package com.elena.latencymeter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -28,6 +24,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @SuppressLint({ "DrawAllocation", "ClickableViewAccessibility" })
 public class AnimationView extends View {
@@ -246,8 +246,10 @@ public class AnimationView extends View {
         if (MainActivity.clockWise) {
 
 			// ////////////!!!!!!!!!!!!!//////////////////
-            prevX = newX;
-            prevY = newY;
+            //prevX = newX;
+            //prevY = newY;
+            double tmpX = newX;
+            double tmpY = newY;
 
         newX = cX + radius * Math.cos(ballAngle);
         newY = cY + radius * Math.sin(ballAngle);
@@ -270,8 +272,8 @@ public class AnimationView extends View {
 
                     canvas.drawBitmap(bm, matrix, null);
                 }
-            //prevX = newX;
-            //prevY = newY;
+            prevX = tmpX;
+            prevY = tmpY;
 
 				// /calculate lines from center to ball and to touch
 				if (!((pos[0] - cX) == 0) && !((pos[1] - cY) == 0)) {
@@ -515,8 +517,8 @@ public class AnimationView extends View {
 			// /////////////////!!!!!!!!!!!////////////////////////
 		} else {
 			// //////reverse all!!!!!!!!!!!!!!!//////////
-            prevX = newX;
-            prevY = newY;
+            double tmpX = newX;
+            double tmpY = newY;
 
             newX = cX + radius * Math.cos(ballAngle);
             newY = cY + radius * Math.sin(ballAngle);
@@ -539,8 +541,8 @@ public class AnimationView extends View {
 
                 canvas.drawBitmap(bm, matrix, null);
             }
-            //prevX = newX;
-            //prevY = newY;
+            prevX = tmpX;
+            prevY = tmpY;
 
 				// /calculate lines from center to ball and to touch
 				if (!((pos[0] - cX) == 0) && !((pos[1] - cY) == 0)) {
