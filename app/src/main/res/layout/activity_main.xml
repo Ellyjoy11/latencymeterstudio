@@ -196,6 +196,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="boxHideClicked"
+            android:checked="true"
             android:paddingRight="4.0dip" />
 
     </LinearLayout>
