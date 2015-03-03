@@ -40,6 +40,8 @@ public class AnimationView extends View {
 
 	int bm_offsetX, bm_offsetY;
 
+    float circleWide;
+
 	double rawA;
 	float startAngle;
 	float touchAngle;
@@ -211,7 +213,9 @@ public class AnimationView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 
-		tvSpeed = (TextView) this.getRootView().findViewById(R.id.textViewSpeed);
+        //Log.d(TAG, "DPI = " + MainActivity.mDensity);
+
+        tvSpeed = (TextView) this.getRootView().findViewById(R.id.textViewSpeed);
 		tvIC = (TextView) this.getRootView().findViewById(R.id.textViewIC);
 		tvDisp = (TextView) this.getRootView().findViewById(R.id.textViewDisp);
 		tvOut = (TextView) this.getRootView().findViewById(R.id.textViewOut);
@@ -307,7 +311,7 @@ public class AnimationView extends View {
 													* (point.y - cY))));
 				touchDistance = (int) Math.sqrt(Math.pow(cX - point.x, 2)
 						+ Math.pow(cY - point.y, 2));
-				touchDelta = Math.abs(touchDistance - radius);
+				touchDelta = Math.round (5 * Math.abs(touchDistance - radius) / MainActivity.mDensity);
 
 				// ////////////////try to fill sector///////////
 				RectF oval = new RectF((float) (cX - radius),
@@ -353,7 +357,7 @@ public class AnimationView extends View {
 				// ////////////////
 				// ///////////////change theta to alpha again if needed
 				if ((touchActive && sweepAngle > 0)
-						|| (2 * touchDelta > bm_offsetX)) {
+						|| (touchDelta > bm_offsetX)) {
 
 					paintText.setColor(Color.RED);
 					paintTouch.setColor(Color.RED);
@@ -367,14 +371,14 @@ public class AnimationView extends View {
                     tvMed_w.setTextColor(Color.RED);
                     tvMax_w.setTextColor(Color.RED);
                     tvStd_w.setTextColor(Color.RED);
-					if (touchActive && (2 * touchDelta > bm_offsetX)) {
+					if (touchActive && (touchDelta > bm_offsetX)) {
 						canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
 								wrongMove);
 						canvas.drawCircle(cX, cY, radius + bm_offsetX / 2,
 								wrongMove);
 
 					}
-				} else if (2 * touchDelta <= bm_offsetX) {
+				} else if (touchDelta <= bm_offsetX) {
 
 					paintText.setColor(Color.BLACK);
 					paintTouch.setColor(Color.GRAY);
@@ -397,7 +401,7 @@ public class AnimationView extends View {
 				}
 				// /////////////
 				if (speed > 0 && theta > 0 && sweepAngle < 0
-						&& (2 * touchDelta <= bm_offsetX)) {
+						&& (touchDelta <= bm_offsetX)) {
 					latency = theta * 1000.0 / speed;
                     if (latency > lowEdge && latency < 50
                             && outputLatency.size() < 200 && !isAutoDone) { // 30
@@ -576,7 +580,8 @@ public class AnimationView extends View {
 													* (point.y - cY))));
 				touchDistance = (int) Math.sqrt(Math.pow(cX - point.x, 2)
 						+ Math.pow(cY - point.y, 2));
-				touchDelta = Math.abs(touchDistance - radius);
+				//touchDelta = Math.abs(touchDistance - radius);
+            touchDelta = Math.round (5 * Math.abs(touchDistance - radius) / MainActivity.mDensity);
 
 				// ////////////////try to fill sector///////////
 				RectF oval = new RectF((float) (cX - radius),
@@ -621,7 +626,7 @@ public class AnimationView extends View {
 				// ////////////////
 				// ///////////////change theta to alpha again if needed
 				if ((touchActive && sweepAngle < 0)
-						|| (2 * touchDelta > bm_offsetX)) {
+						|| (touchDelta > bm_offsetX)) {
 
 					paintText.setColor(Color.RED);
 					paintTouch.setColor(Color.RED);
@@ -635,14 +640,14 @@ public class AnimationView extends View {
                     tvMed_w.setTextColor(Color.RED);
                     tvMax_w.setTextColor(Color.RED);
                     tvStd_w.setTextColor(Color.RED);
-					if (touchActive && (2 * touchDelta > bm_offsetX)) {
+					if (touchActive && (touchDelta > bm_offsetX)) {
 						canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
 								wrongMove);
 						canvas.drawCircle(cX, cY, radius + bm_offsetX / 2,
 								wrongMove);
 
 					}
-				} else if (2 * touchDelta <= bm_offsetX) {
+				} else if (touchDelta <= bm_offsetX) {
 
 					paintText.setColor(Color.BLACK);
 					paintTouch.setColor(Color.GRAY);
@@ -667,7 +672,7 @@ public class AnimationView extends View {
 
 
 				if (speed > 0 && theta > 0 && sweepAngle > 0
-						&& (2 * touchDelta <= bm_offsetX)) {
+						&& (touchDelta <= bm_offsetX)) {
 					latency = theta * 1000.0 / speed;
 
                     if (latency > lowEdge && latency < 50

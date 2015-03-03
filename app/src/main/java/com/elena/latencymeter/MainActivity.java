@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
 
 	public static int screenWidth;
 	public static int screenHeight;
+    public static float mDensity;
 	public static boolean clockWise;
 	public static boolean showSector;
     public static int displayTransmissionDelay;
@@ -96,6 +97,8 @@ public class MainActivity extends Activity {
 		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 		screenWidth = displaymetrics.widthPixels;
 		screenHeight = displaymetrics.heightPixels;
+        mDensity = displaymetrics.density;
+
         tmp = prefs.getString("displayTransmissionDelay", "13");
         displayTransmissionDelay = Integer.parseInt(tmp);
 
