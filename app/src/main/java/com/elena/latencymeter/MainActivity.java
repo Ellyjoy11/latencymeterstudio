@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -20,8 +21,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -35,6 +34,7 @@ public class MainActivity extends Activity {
 	//public final String MYPREFS = "my shared prefs";
     SharedPreferences prefs;
     private String tmp;
+    private String manufacturer, model_name, device_name;
 
 	SeekBar speedBar;
 	AnimationView myView;
@@ -55,7 +55,11 @@ public class MainActivity extends Activity {
 
 		setContentView(R.layout.activity_main);
 
+        manufacturer = Build.MANUFACTURER;
+        model_name = Build.MODEL;
+        device_name = Build.DEVICE;
 
+        setTitle(manufacturer + " " + device_name + " [" + model_name + "]");
 
 		mCheckBox = (CheckBox) findViewById(R.id.checkBox);
 		if (mCheckBox.isChecked()) {
