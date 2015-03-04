@@ -71,9 +71,9 @@ public class MainActivity extends Activity {
 
 		mCheckBox2 = (CheckBox) findViewById(R.id.checkBox2);
 		if (mCheckBox2.isChecked()) {
-			showSector = false;
-		} else {
 			showSector = true;
+		} else {
+			showSector = false;
 		}
 
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
@@ -229,9 +229,9 @@ public class MainActivity extends Activity {
 
 	public void boxHideClicked(View view) {
 		if (mCheckBox2.isChecked()) {
-			showSector = false;
-		} else {
 			showSector = true;
+		} else {
+			showSector = false;
 		}
 		//Log.d(TAG, "show sector: " + showSector);
 

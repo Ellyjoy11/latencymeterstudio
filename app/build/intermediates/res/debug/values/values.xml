@@ -12,7 +12,6 @@
     <string name="disp">dispatch:</string>
     <string name="displayDelay">Display transmission delay</string>
     <string name="hello_world">Hello world!</string>
-    <string name="hide">hide</string>
     <string name="ic">IC/Kernel:</string>
     <string name="latency">latency:</string>
     <string name="max">max:</string>
@@ -22,6 +21,7 @@
     <string name="reverse">CCW</string>
     <string name="stdev">stdev:</string>
     <string name="total">total:</string>
+    <string name="trace">trace</string>
     <!-- From: file:/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/src/main/res/values/styles.xml -->
     <eat-comment/>
     <style name="AppBaseTheme" parent="android:Theme.Light">

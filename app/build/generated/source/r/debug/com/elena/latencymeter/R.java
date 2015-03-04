@@ -68,16 +68,16 @@ public final class R {
         public static final int disp=0x7f060003;
         public static final int displayDelay=0x7f060004;
         public static final int hello_world=0x7f060005;
-        public static final int hide=0x7f060006;
-        public static final int ic=0x7f060007;
-        public static final int latency=0x7f060008;
-        public static final int max=0x7f060009;
-        public static final int median=0x7f06000a;
-        public static final int min=0x7f06000b;
-        public static final int output=0x7f06000c;
-        public static final int reverse=0x7f06000d;
-        public static final int stdev=0x7f06000e;
-        public static final int total=0x7f06000f;
+        public static final int ic=0x7f060006;
+        public static final int latency=0x7f060007;
+        public static final int max=0x7f060008;
+        public static final int median=0x7f060009;
+        public static final int min=0x7f06000a;
+        public static final int output=0x7f06000b;
+        public static final int reverse=0x7f06000c;
+        public static final int stdev=0x7f06000d;
+        public static final int total=0x7f06000e;
+        public static final int trace=0x7f06000f;
     }
     public static final class style {
         /** 

@@ -97,7 +97,7 @@
             android:id="@+id/checkBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="1.1"
             android:onClick="boxClicked"
             android:paddingRight="4.0dip" />
 
@@ -146,7 +146,7 @@
             android:id="@+id/revText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="1.1"
             android:text="@string/reverse" />
 
     </LinearLayout>
@@ -194,9 +194,9 @@
             android:id="@+id/checkBox2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="1.1"
             android:onClick="boxHideClicked"
-            android:checked="true"
+            android:checked="false"
             android:paddingRight="4.0dip" />
 
     </LinearLayout>
@@ -244,8 +244,8 @@
             android:id="@+id/hideText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/hide" />
+            android:layout_weight="1.1"
+            android:text="@string/trace" />
 
     </LinearLayout>
 

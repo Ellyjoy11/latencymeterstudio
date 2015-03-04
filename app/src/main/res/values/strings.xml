@@ -6,7 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="about">About</string>
     <string name="reverse">CCW</string>
-    <string name="hide">hide</string>
+    <string name="trace">trace</string>
     <string name="latency">latency:</string>
     <string name="ic">IC/Kernel:</string>
     <string name="disp">dispatch:</string>
