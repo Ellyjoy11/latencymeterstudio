@@ -213,7 +213,7 @@ public class AnimationView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 
-        //Log.d(TAG, "DPI = " + MainActivity.mDensity);
+        //Log.d(TAG, "DPI = " + MainActivity.mDensity + " rounded: " + Math.ceil(MainActivity.mDensity));
 
         tvSpeed = (TextView) this.getRootView().findViewById(R.id.textViewSpeed);
 		tvIC = (TextView) this.getRootView().findViewById(R.id.textViewIC);
@@ -311,7 +311,8 @@ public class AnimationView extends View {
 													* (point.y - cY))));
 				touchDistance = (int) Math.sqrt(Math.pow(cX - point.x, 2)
 						+ Math.pow(cY - point.y, 2));
-				touchDelta = Math.round (5 * Math.abs(touchDistance - radius) / MainActivity.mDensity);
+				touchDelta = (int)(4 * Math.abs(touchDistance - radius) / Math.ceil(MainActivity.mDensity));
+            //Log.d (TAG, "old and new: " + (2 * Math.abs(touchDistance - radius)) + "; " + touchDelta);
 
 				// ////////////////try to fill sector///////////
 				RectF oval = new RectF((float) (cX - radius),
@@ -581,7 +582,7 @@ public class AnimationView extends View {
 				touchDistance = (int) Math.sqrt(Math.pow(cX - point.x, 2)
 						+ Math.pow(cY - point.y, 2));
 				//touchDelta = Math.abs(touchDistance - radius);
-            touchDelta = Math.round (5 * Math.abs(touchDistance - radius) / MainActivity.mDensity);
+            touchDelta = (int)(4 * Math.abs(touchDistance - radius) / Math.ceil(MainActivity.mDensity));
 
 				// ////////////////try to fill sector///////////
 				RectF oval = new RectF((float) (cX - radius),
