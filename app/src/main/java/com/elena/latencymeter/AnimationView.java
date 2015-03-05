@@ -311,8 +311,11 @@ public class AnimationView extends View {
 													* (point.y - cY))));
 				touchDistance = (int) Math.sqrt(Math.pow(cX - point.x, 2)
 						+ Math.pow(cY - point.y, 2));
-				touchDelta = (int)(4 * Math.abs(touchDistance - radius) / Math.ceil(MainActivity.mDensity));
-            //Log.d (TAG, "old and new: " + (2 * Math.abs(touchDistance - radius)) + "; " + touchDelta);
+            if (MainActivity.mDensity < 2 || MainActivity.mDensity > 3.8) {
+                touchDelta = (int) (1.5 * Math.abs(touchDistance - radius));
+            } else {
+                touchDelta = 2 * Math.abs(touchDistance - radius);
+            }
 
 				// ////////////////try to fill sector///////////
 				RectF oval = new RectF((float) (cX - radius),
@@ -582,7 +585,11 @@ public class AnimationView extends View {
 				touchDistance = (int) Math.sqrt(Math.pow(cX - point.x, 2)
 						+ Math.pow(cY - point.y, 2));
 				//touchDelta = Math.abs(touchDistance - radius);
-            touchDelta = (int)(4 * Math.abs(touchDistance - radius) / Math.ceil(MainActivity.mDensity));
+            if (MainActivity.mDensity < 2 || MainActivity.mDensity > 3.8) {
+                touchDelta = (int) (1.5 * Math.abs(touchDistance - radius));
+            } else {
+                touchDelta = 2 * Math.abs(touchDistance - radius);
+            }
 
 				// ////////////////try to fill sector///////////
 				RectF oval = new RectF((float) (cX - radius),
