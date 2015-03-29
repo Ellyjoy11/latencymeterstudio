@@ -283,6 +283,7 @@ public class MainActivity extends Activity {
         //modeAuto = true;
         AnimationView.isAutoDone = false;
         AnimationView.count = -1;
+        finish();
         super.onPause();
     }
 
