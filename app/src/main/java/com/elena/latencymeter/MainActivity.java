@@ -107,14 +107,17 @@ public class MainActivity extends Activity {
         touchFWPath = getTouchFWPath();
         touchCfg = getTouchCfg();
         panel = getPanelType();
+        String touchInfoText = "";
 
-        String touchInfoText = "Product: " + productInfo + "  Config: " + touchCfg;
+        if (!touchCfg.isEmpty()) {
+            touchInfoText = "Product: " + productInfo + "  Config: " + touchCfg;
+        }
         if (!panel.isEmpty()) {
             touchInfoText += " Panel: " + panel;
         }
-		if (!touchInfoText.isEmpty()) {
+
 			touchInfo.setText(touchInfoText);
-		}
+
 
 	}
 
