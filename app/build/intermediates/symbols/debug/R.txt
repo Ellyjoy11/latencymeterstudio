@@ -5,12 +5,13 @@ int drawable ic_ball_2 0x7f020001
 int drawable ic_launcher 0x7f020002
 int drawable soccer_ball2 0x7f020003
 int drawable tennis_ball 0x7f020004
-int id about 0x7f09001f
-int id action_settings 0x7f09001e
+int id about 0x7f090020
+int id action_settings 0x7f09001f
 int id animView 0x7f090000
 int id checkBox 0x7f09000b
 int id checkBox2 0x7f090017
 int id hideText 0x7f09001d
+int id infoText 0x7f09001e
 int id lineBar1 0x7f090001
 int id lineBar2 0x7f090006
 int id lineBar3 0x7f09000c

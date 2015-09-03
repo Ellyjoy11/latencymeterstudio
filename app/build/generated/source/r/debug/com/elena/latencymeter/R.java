@@ -22,12 +22,13 @@ public final class R {
         public static final int tennis_ball=0x7f020004;
     }
     public static final class id {
-        public static final int about=0x7f09001f;
-        public static final int action_settings=0x7f09001e;
+        public static final int about=0x7f090020;
+        public static final int action_settings=0x7f09001f;
         public static final int animView=0x7f090000;
         public static final int checkBox=0x7f09000b;
         public static final int checkBox2=0x7f090017;
         public static final int hideText=0x7f09001d;
+        public static final int infoText=0x7f09001e;
         public static final int lineBar1=0x7f090001;
         public static final int lineBar2=0x7f090006;
         public static final int lineBar3=0x7f09000c;

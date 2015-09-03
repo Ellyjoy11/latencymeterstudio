@@ -75,15 +75,19 @@ public class AnimationView extends View {
 	double speed = 0;
 	double latency;
 	double averageLatency;
+    double averageEvRate;
 	double averageDispatchLatency;
     double averageOutputLatency = 0;
 	double median, minL, maxL;
+    double medianEv, minEv, maxEv;
 	double stdevLatency;
 	double eventRate;
+    double stdevEv;
 
 	List<Double> myLatency = new ArrayList<Double>();
 	List<Long> dispatchLatency = new ArrayList<Long>();
     List<Double> outputLatency = new ArrayList<Double>();
+    List<Double> evRate = new ArrayList<Double>();
 
 	public static int screenWidth;
 	public static int screenHeight;
@@ -848,6 +852,8 @@ public class AnimationView extends View {
 
                 millis4 = SystemClock.elapsedRealtime();
                 eventRate = touchCount * 1000.0 / (millis4 - millis3);
+                evRate.add(eventRate);
+                Log.d(TAG, "rate added: " + eventRate);
             }
 			break;
 		case MotionEvent.ACTION_UP:
@@ -893,46 +899,73 @@ public class AnimationView extends View {
 
 			if (myLatency.size() == 1000) {
 
-				double sum = 0;
-				double sum2 = 0;
-				double devSum = 0;
-				double[] numArray = new double[myLatency.size()];
-				for (int i = 0; i < myLatency.size(); i++) {
-					sum += myLatency.get(i);
-					numArray[i] = myLatency.get(i);
+                double sum = 0;
+                double sum2 = 0;
+                double devSum = 0;
+                double[] numArray = new double[myLatency.size()];
+                for (int i = 0; i < myLatency.size(); i++) {
+                    sum += myLatency.get(i);
+                    numArray[i] = myLatency.get(i);
 
-				}
-				averageLatency = sum * 1.0 / (myLatency.size());
-				if (isAutoDone) {
+                }
+                averageLatency = sum * 1.0 / (myLatency.size());
+                if (isAutoDone) {
                     for (int i = 0; i < dispatchLatency.size(); i++) {
                         sum2 += dispatchLatency.get(i);
 
                     }
                     averageDispatchLatency = sum2 * 1.0 / (dispatchLatency.size());
                 }
-				for (int i = 0; i < myLatency.size(); i++) {
-					devSum += Math.pow(myLatency.get(i) - averageLatency, 2);
-				}
-				stdevLatency = Math.sqrt(devSum * 1.0 / myLatency.size());
-				Arrays.sort(numArray);
-
-				minL = numArray[0];
-				maxL = numArray[numArray.length - 1];
-				int middle = (numArray.length) / 2;
-				if (numArray.length % 2 == 0) {
-					double medianA = numArray[middle];
-					double medianB = numArray[middle - 1];
-					median = ((double) (medianA + medianB) / 2);
-				} else {
-					median = numArray[middle + 1];
-				}
-                /*
-                if (mRunMode && !isAutoDone) {
-                    averageOutputLatency = averageLatency;
-                    isAutoDone = true;
+                for (int i = 0; i < myLatency.size(); i++) {
+                    devSum += Math.pow(myLatency.get(i) - averageLatency, 2);
                 }
-                */
-			}
+                stdevLatency = Math.sqrt(devSum * 1.0 / myLatency.size());
+                Arrays.sort(numArray);
+
+                minL = numArray[0];
+                maxL = numArray[numArray.length - 1];
+                int middle = (numArray.length) / 2;
+                if (numArray.length % 2 == 0) {
+                    double medianA = numArray[middle];
+                    double medianB = numArray[middle - 1];
+                    median = ((double) (medianA + medianB) / 2);
+                } else {
+                    median = numArray[middle + 1];
+                }
+
+                //////////////
+                double sumEv = 0;
+                double sum2Ev = 0;
+                double devSumEv = 0;
+                double[] numArrayEv = new double[evRate.size()];
+                for (int i = 0; i < evRate.size(); i++) {
+                    sumEv += evRate.get(i);
+                    numArrayEv[i] = evRate.get(i);
+                }
+                averageEvRate = sumEv * 1.0 / (evRate.size());
+
+                for (int i = 0; i < evRate.size(); i++) {
+                    devSumEv += Math.pow(evRate.get(i) - averageEvRate, 2);
+                }
+                stdevEv = Math.sqrt(devSumEv * 1.0 / evRate.size());
+                Arrays.sort(numArrayEv);
+
+                minEv = numArrayEv[0];
+                maxEv = numArrayEv[numArrayEv.length - 1];
+                Log.d(TAG, "event rate min and max: " + minEv + "; " + maxEv);
+                int middleEv = (numArrayEv.length) / 2;
+                if (numArrayEv.length % 2 == 0) {
+                    double medianEvA = numArrayEv[middleEv];
+                    double medianEvB = numArrayEv[middleEv - 1];
+                    medianEv = ((double) (medianEvA + medianEvB) / 2);
+                } else {
+                    medianEv = numArrayEv[middleEv + 1];
+                }
+                Log.d(TAG, "event rate median: " + medianEv);
+                Log.d(TAG, "event rate average: " + averageEvRate);
+                Log.d(TAG, "event rate stdev: " + stdevEv);
+                //////////////
+            }
 			break;
 
 		}

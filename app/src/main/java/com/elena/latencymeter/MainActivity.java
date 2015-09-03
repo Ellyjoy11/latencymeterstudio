@@ -1,5 +1,6 @@
 package com.elena.latencymeter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -21,6 +22,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class MainActivity extends Activity {
 
@@ -41,7 +49,14 @@ public class MainActivity extends Activity {
 	AnimationView myView;
 	CheckBox mCheckBox, mCheckBox2;
 
-	@Override
+	TextView touchInfo;
+    public static String touchFWPath;
+    public static String panel;
+    public static String touchCfg;
+    public static String productInfo;
+
+	@SuppressLint("NewApi")
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
@@ -86,7 +101,20 @@ public class MainActivity extends Activity {
 
 		speedBar.setOnSeekBarChangeListener(speedBarOnSeekBarChangeListener);
 
+        touchInfo = (TextView) findViewById(R.id.infoText);
+		//TODO read config ID etc.
 
+        touchFWPath = getTouchFWPath();
+        touchCfg = getTouchCfg();
+        panel = getPanelType();
+
+        String touchInfoText = "Product: " + productInfo + "  Config: " + touchCfg;
+        if (!panel.isEmpty()) {
+            touchInfoText += " Panel: " + panel;
+        }
+		if (!touchInfoText.isEmpty()) {
+			touchInfo.setText(touchInfoText);
+		}
 
 	}
 
@@ -286,5 +314,79 @@ public class MainActivity extends Activity {
         finish();
         super.onPause();
     }
+
+    public static String getTouchFWPath() {
+
+        String touchPath = "/sys/bus/i2c/devices/";// +"2-0020";
+        String exactFolder = "";
+        String fwPattern1 = "(?i).*(\\w{1}-\\w{4}).*";
+
+        File root = new File("/sys/bus/i2c/drivers/synaptics_dsx_i2c");
+        File[] list = root.listFiles();
+
+        if (list == null)
+            return "not found";
+
+        for (File f : list) {
+            if (f.isDirectory()) {
+                //Log.d(TAG, "checking: " + f.toString());
+                if (f.toString().matches(fwPattern1)) {
+                    exactFolder = f.toString().replaceAll(fwPattern1, "$1");
+                }
+            }
+        }
+
+        touchPath += exactFolder;
+        Log.d(TAG, "determined touch fw path: " + touchPath);
+        return touchPath;
+    }
+
+    public static String getTouchCfg() {
+        String touchCfg = "";
+        String catIC = "";
+        catIC = readFile(touchFWPath + "/ic_ver");
+        String cfgPattern = "(?i).*Config\\s+ID:\\s+(\\w+).*";
+        String prodInfo = "(?i).*Product\\s+ID:\\s+(\\w+)Build.*";
+
+        if (catIC.matches(prodInfo)) {
+            productInfo = catIC.replaceAll(prodInfo, "$1");
+        }
+        if (catIC.matches(cfgPattern)) {
+            touchCfg = catIC.replaceAll(cfgPattern, "$1");
+        }
+        //Log.d(TAG, "product info: " + productInfo);
+        return touchCfg;
+    }
+
+    public static String readFile(String fileToRead) {
+        FileInputStream is;
+        BufferedReader reader;
+        String readOut = "";
+        String line;
+        final File file = new File(fileToRead);
+
+        if (file.exists()) {
+            try {
+                is = new FileInputStream(file);
+                reader = new BufferedReader(new InputStreamReader(is));
+                //line = reader.readLine();
+                while ((line = reader.readLine()) != null) {
+                    //Log.d(TAG, "read from file: " + line);
+                    readOut += line;
+                }
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return readOut;
+    }
+
+    public static String getPanelType() {
+        //TODO
+        String panel = readFile("/sys/class/graphics/fb0/panel_supplier");
+        return panel;
+    }
+
 
 }
