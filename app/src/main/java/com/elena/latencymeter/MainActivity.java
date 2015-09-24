@@ -44,6 +44,8 @@ public class MainActivity extends Activity {
     SharedPreferences prefs;
     private String tmp;
     private String manufacturer, model_name, device_name;
+    private static File[] list1;
+    private static File[] list2;
 
 	SeekBar speedBar;
 	AnimationView myView;
@@ -324,21 +326,33 @@ public class MainActivity extends Activity {
         String exactFolder = "";
         String fwPattern1 = "(?i).*(\\w{1}-\\w{4}).*";
 
-        File root = new File("/sys/bus/i2c/drivers/synaptics_dsx_i2c");
-        File[] list = root.listFiles();
+        File rootSyna = new File("/sys/bus/i2c/drivers/synaptics_dsx_i2c");
+        list1 = rootSyna.listFiles();
+        File rootAtm = new File("/sys/bus/i2c/drivers/atmel_mxt_ts");
+        list2 = rootAtm.listFiles();
 
-        if (list == null)
-            return "not found";
+        if (list1 != null) {
 
-        for (File f : list) {
-            if (f.isDirectory()) {
-                //Log.d(TAG, "checking: " + f.toString());
-                if (f.toString().matches(fwPattern1)) {
-                    exactFolder = f.toString().replaceAll(fwPattern1, "$1");
+            for (File f : list1) {
+                if (f.isDirectory()) {
+                    Log.d(TAG, "checking: " + f.toString());
+                    if (f.toString().matches(fwPattern1)) {
+                        exactFolder = f.toString().replaceAll(fwPattern1, "$1");
+                    }
                 }
             }
         }
-
+        if (list2 != null && exactFolder == "") {
+                for (File f : list2) {
+                    if (f.isDirectory()) {
+                        Log.d(TAG, "checking: " + f.toString());
+                        if (f.toString().matches(fwPattern1)) {
+                            exactFolder = f.toString().replaceAll(fwPattern1, "$1");
+                        }
+                    }
+                }
+            }
+        
         touchPath += exactFolder;
         Log.d(TAG, "determined touch fw path: " + touchPath);
         return touchPath;
@@ -349,7 +363,7 @@ public class MainActivity extends Activity {
         String catIC = "";
         catIC = readFile(touchFWPath + "/ic_ver");
         String cfgPattern = "(?i).*Config\\s+ID:\\s+(\\w+).*";
-        String prodInfo = "(?i).*Product\\s+ID:\\s+(\\w+)Build.*";
+        String prodInfo = "(?i).*Product\\s+ID:\\s+([\\w|\\(|\\)]+)Build.*";//([\w|\(|\)]+)
 
         if (catIC.matches(prodInfo)) {
             productInfo = catIC.replaceAll(prodInfo, "$1");
