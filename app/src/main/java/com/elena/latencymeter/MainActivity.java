@@ -352,7 +352,7 @@ public class MainActivity extends Activity {
                     }
                 }
             }
-        
+
         touchPath += exactFolder;
         Log.d(TAG, "determined touch fw path: " + touchPath);
         return touchPath;
@@ -399,9 +399,14 @@ public class MainActivity extends Activity {
         return readOut;
     }
 
+    @SuppressLint("NewApi")
     public static String getPanelType() {
         //TODO
         String panel = readFile("/sys/class/graphics/fb0/panel_supplier");
+        String tmpVersion = readFile("/sys/class/graphics/fb0/panel_ver");
+        if (!panel.isEmpty() && !tmpVersion.isEmpty()) {
+            panel += "-v" + tmpVersion.substring(tmpVersion.length() - 3, tmpVersion.length() - 2); // begin index inclusive, end index exclusive!!!
+        }
         return panel;
     }
 
