@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
     private static File[] list2;
 
 	SeekBar speedBar;
-	AnimationView myView;
+	static AnimationView myView;
 	CheckBox mCheckBox, mCheckBox2;
 
 	TextView touchInfo;
@@ -120,6 +120,9 @@ public class MainActivity extends Activity {
 
 			touchInfo.setText(touchInfoText);
 
+        //String noiseState = readFile(touchFWPath + "/f54/d10_noise_state");
+        //myView.setPathColor();
+        //myView.invalidate();
 
 	}
 
@@ -396,6 +399,7 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
         }
+        //myView.invalidate();
         return readOut;
     }
 

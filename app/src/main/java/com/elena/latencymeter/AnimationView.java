@@ -25,6 +25,11 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -115,6 +120,8 @@ public class AnimationView extends View {
     int currFps = 59;
     int lowEdge;
 
+    public static String noiseState;
+
 	public AnimationView(Context context) {
 		super(context);
 		initMyView();
@@ -158,9 +165,10 @@ public class AnimationView extends View {
         radMax = radius + bm_offsetX / 2;
 
 		paint = new Paint();
-		paint.setColor(Color.BLUE);
+		//paint.setColor(Color.BLUE);
 		paint.setStrokeWidth(bm_offsetX);
 		paint.setStyle(Paint.Style.STROKE);
+        setPathColor();
 
         autoPaint = new Paint();
         autoPaint.setColor(Color.parseColor("#81d8d0"));
@@ -214,7 +222,8 @@ public class AnimationView extends View {
 
 	}
 
-	@Override
+	@SuppressLint("NewApi")
+    @Override
 	protected void onDraw(Canvas canvas) {
 
         //Log.d(TAG, "DPI = " + MainActivity.mDensity + " rounded: " + Math.ceil(MainActivity.mDensity));
@@ -261,6 +270,11 @@ public class AnimationView extends View {
 
         newX = cX + radius * Math.cos(ballAngle);
         newY = cY + radius * Math.sin(ballAngle);
+            String noiseState=setPathColor();
+			//Log.d(TAG, "call color function");
+            canvas.drawPath(animPath, paint);
+            //tvSpeed.setText("speed\n" + String.format("%.2f", speed)
+            //        + " rad/s" + "\nNState: " + noiseState);
 
             if (!isAutoDone) {
                 autoX1 = (float)(cX + radMin * Math.cos(ballAngle));
@@ -534,6 +548,11 @@ public class AnimationView extends View {
 
             newX = cX + radius * Math.cos(ballAngle);
             newY = cY + radius * Math.sin(ballAngle);
+            String noiseState = setPathColor();
+            //Log.d(TAG, "call color function");
+            canvas.drawPath(animPath, paint);
+            //tvSpeed.setText("speed\n" + String.format("%.2f", speed)
+            //        + " rad/s" + "\nNState: " + noiseState);
 
             if (!isAutoDone) {
                 autoX1 = (float)(cX + radMin * Math.cos(ballAngle));
@@ -853,7 +872,7 @@ public class AnimationView extends View {
                 millis4 = SystemClock.elapsedRealtime();
                 eventRate = touchCount * 1000.0 / (millis4 - millis3);
                 evRate.add(eventRate);
-                Log.d(TAG, "rate added: " + eventRate);
+                //Log.d(TAG, "rate added: " + eventRate);
             }
 			break;
 		case MotionEvent.ACTION_UP:
@@ -934,6 +953,7 @@ public class AnimationView extends View {
                 }
 
                 //////////////
+				/*
                 double sumEv = 0;
                 double sum2Ev = 0;
                 double devSumEv = 0;
@@ -952,7 +972,7 @@ public class AnimationView extends View {
 
                 minEv = numArrayEv[0];
                 maxEv = numArrayEv[numArrayEv.length - 1];
-                Log.d(TAG, "event rate min and max: " + minEv + "; " + maxEv);
+                //Log.d(TAG, "event rate min and max: " + minEv + "; " + maxEv);
                 int middleEv = (numArrayEv.length) / 2;
                 if (numArrayEv.length % 2 == 0) {
                     double medianEvA = numArrayEv[middleEv];
@@ -961,9 +981,10 @@ public class AnimationView extends View {
                 } else {
                     medianEv = numArrayEv[middleEv + 1];
                 }
-                Log.d(TAG, "event rate median: " + medianEv);
-                Log.d(TAG, "event rate average: " + averageEvRate);
-                Log.d(TAG, "event rate stdev: " + stdevEv);
+                //Log.d(TAG, "event rate median: " + medianEv);
+                //Log.d(TAG, "event rate average: " + averageEvRate);
+                //Log.d(TAG, "event rate stdev: " + stdevEv);
+                */
                 //////////////
             }
 			break;
@@ -980,6 +1001,49 @@ public class AnimationView extends View {
     //public void setMode(boolean runMode) {
     //    mRunMode = runMode;
     //}
+    @SuppressLint("NewApi")
+    public String setPathColor() {
+
+        FileInputStream is;
+        BufferedReader reader;
+        String readOut = "";
+        String line;
+        File file = new File(MainActivity.touchFWPath + "/f54/d10_noise_state");
+
+        if (file.exists()) {
+            try {
+                is = new FileInputStream(file);
+                reader = new BufferedReader(new InputStreamReader(is));
+                //line = reader.readLine();
+                while ((line = reader.readLine()) != null) {
+                    //Log.d(TAG, "read from file: " + line);
+                    readOut += line;
+                }
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (!readOut.isEmpty()) {
+            //Log.d(TAG, "reading noise state: " + readOut);
+
+            if (readOut.equals("2")) {
+                paint.setColor(Color.parseColor("#ffa500"));
+				//Log.d(TAG, "set color to yellow");
+            }
+            else {
+                paint.setColor(Color.BLUE);
+				//Log.d(TAG, "set color to blue");
+            }
+
+            //this.invalidate();
+        } else {
+            paint.setColor(Color.BLUE);
+        }
+
+        return readOut;
+    }
 
     private void simulateTouchCancel (int simMode) {
         long downTime = SystemClock.uptimeMillis();
