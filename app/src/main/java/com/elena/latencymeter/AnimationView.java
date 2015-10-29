@@ -119,6 +119,7 @@ public class AnimationView extends View {
     TextView tvDisp_w, tvOut_w, tvTotal_w;
     int currFps = 59;
     int lowEdge;
+    int multiplier = 5;
 
     public static String noiseState;
 
@@ -256,7 +257,7 @@ public class AnimationView extends View {
         if(!isAutoDone) {
            lowEdge = 5;
         } else {
-            lowEdge = 50;
+            lowEdge = (int) averageOutputLatency;
         }
 
 
@@ -270,7 +271,7 @@ public class AnimationView extends View {
 
         newX = cX + radius * Math.cos(ballAngle);
         newY = cY + radius * Math.sin(ballAngle);
-            String noiseState=setPathColor();
+            noiseState=setPathColor();
 			//Log.d(TAG, "call color function");
             canvas.drawPath(animPath, paint);
             //tvSpeed.setText("speed\n" + String.format("%.2f", speed)
@@ -431,8 +432,12 @@ public class AnimationView extends View {
                         outputLatency.add(latency);
                         count = outputLatency.size();
                     }
+					Log.d(TAG, "..." + latency + "..." + averageOutputLatency + "..." + dispatchTime + "..." + noiseState);
 					if (latency > lowEdge && latency < 220
-							&& myLatency.size() < 1000 && isAutoDone) { // 30
+							&& myLatency.size() < 1000 && isAutoDone
+							&& ((noiseState.equals("1") && ((latency
+							- averageOutputLatency - dispatchTime) < (multiplier * 1000 / eventRate))) || noiseState.isEmpty() ||
+							noiseState.equals("2"))) { // 30
 															// is
 															// set
 															// to
@@ -440,6 +445,7 @@ public class AnimationView extends View {
 						// "cheating"
 						// samples
 						myLatency.add(latency);
+						Log.d(TAG, "latency added: " + latency);
                         //count = myLatency.size();
 					}
 				} else {
@@ -548,7 +554,7 @@ public class AnimationView extends View {
 
             newX = cX + radius * Math.cos(ballAngle);
             newY = cY + radius * Math.sin(ballAngle);
-            String noiseState = setPathColor();
+            noiseState = setPathColor();
             //Log.d(TAG, "call color function");
             canvas.drawPath(animPath, paint);
             //tvSpeed.setText("speed\n" + String.format("%.2f", speed)
@@ -713,7 +719,9 @@ public class AnimationView extends View {
                         count = outputLatency.size();
                     }
 					if (latency > lowEdge && latency < 220
-							&& myLatency.size() < 1000 && isAutoDone) { // 30
+							&& myLatency.size() < 1000 && isAutoDone&& ((noiseState.equals("1") && ((latency
+							- averageOutputLatency - dispatchTime) < (multiplier * 1000 / eventRate))) || noiseState.isEmpty() ||
+							noiseState.equals("2"))) { // 30
 															// is
 															// set
 															// to
