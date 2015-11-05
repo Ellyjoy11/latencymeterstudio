@@ -55,3 +55,9 @@ category#android.intent.category.LAUNCHER
 ADDED from AndroidManifest.xml:24:17
 	android:name
 		ADDED from AndroidManifest.xml:24:27
+activity#com.elena.latencymeter.SetPreferences
+ADDED from AndroidManifest.xml:27:9
+	android:label
+		ADDED from AndroidManifest.xml:28:13
+	android:name
+		ADDED from AndroidManifest.xml:27:19

@@ -119,7 +119,8 @@ public class AnimationView extends View {
     TextView tvDisp_w, tvOut_w, tvTotal_w;
     int currFps = 59;
     int lowEdge;
-    int multiplier = 5;
+    int multiplier;
+	int samples;
 
     public static String noiseState;
 
@@ -227,7 +228,7 @@ public class AnimationView extends View {
     @Override
 	protected void onDraw(Canvas canvas) {
 
-        //Log.d(TAG, "DPI = " + MainActivity.mDensity + " rounded: " + Math.ceil(MainActivity.mDensity));
+        Log.d(TAG, "multiplier and samples: " + multiplier + "..." + samples);
 
         tvSpeed = (TextView) this.getRootView().findViewById(R.id.textViewSpeed);
 		tvIC = (TextView) this.getRootView().findViewById(R.id.textViewIC);
@@ -432,9 +433,9 @@ public class AnimationView extends View {
                         outputLatency.add(latency);
                         count = outputLatency.size();
                     }
-					Log.d(TAG, "..." + latency + "..." + averageOutputLatency + "..." + dispatchTime + "..." + noiseState);
+					//Log.d(TAG, "..." + latency + "..." + averageOutputLatency + "..." + dispatchTime + "..." + noiseState);
 					if (latency > lowEdge && latency < 220
-							&& myLatency.size() < 1000 && isAutoDone
+							&& myLatency.size() < samples && isAutoDone
 							&& ((noiseState.equals("1") && ((latency
 							- averageOutputLatency - dispatchTime) < (multiplier * 1000 / eventRate))) || noiseState.isEmpty() ||
 							noiseState.equals("2"))) { // 30
@@ -445,7 +446,7 @@ public class AnimationView extends View {
 						// "cheating"
 						// samples
 						myLatency.add(latency);
-						Log.d(TAG, "latency added: " + latency);
+						//Log.d(TAG, "latency added: " + latency);
                         //count = myLatency.size();
 					}
 				} else {
@@ -507,11 +508,11 @@ public class AnimationView extends View {
                 tvOut_w.setTypeface(Typeface.DEFAULT_BOLD);
             }
 
-				if (touchActive && myLatency.size() < 1000 && isAutoDone) {
+				if (touchActive && myLatency.size() < samples && isAutoDone) {
 					paintText.setColor(Color.parseColor("#FFA500"));
 					paintText.setStrokeWidth(2);
 					paintText.setTextSize(80 * screenDpi / 4);
-					canvas.drawText("" + (1000 - myLatency.size()), cX - 40,
+					canvas.drawText("" + (samples - myLatency.size()), cX - 40,
 							cY, paintText);
 				} else if (touchActive && isAutoDone) {
 					paintText.setColor(Color.parseColor("#008000"));
@@ -719,7 +720,7 @@ public class AnimationView extends View {
                         count = outputLatency.size();
                     }
 					if (latency > lowEdge && latency < 220
-							&& myLatency.size() < 1000 && isAutoDone&& ((noiseState.equals("1") && ((latency
+							&& myLatency.size() < samples && isAutoDone&& ((noiseState.equals("1") && ((latency
 							- averageOutputLatency - dispatchTime) < (multiplier * 1000 / eventRate))) || noiseState.isEmpty() ||
 							noiseState.equals("2"))) { // 30
 															// is
@@ -789,11 +790,11 @@ public class AnimationView extends View {
                         + " Hz");
             }
 
-				if (touchActive && myLatency.size() < 1000 && isAutoDone) {
+				if (touchActive && myLatency.size() < samples && isAutoDone) {
                     paintText.setColor(Color.parseColor("#FFA500"));
                     paintText.setStrokeWidth(3);
                     paintText.setTextSize(80 * screenDpi / 4);
-                    canvas.drawText("" + (1000 - myLatency.size()), cX - 40,
+                    canvas.drawText("" + (samples - myLatency.size()), cX - 40,
                             cY, paintText);
                 } else if (touchActive && isAutoDone) {
                     paintText.setColor(Color.parseColor("#008000"));
@@ -924,7 +925,7 @@ public class AnimationView extends View {
 
             }
 
-			if (myLatency.size() == 1000) {
+			if (myLatency.size() == samples) {
 
                 double sum = 0;
                 double sum2 = 0;
@@ -1004,6 +1005,9 @@ public class AnimationView extends View {
 
 	public void setBallSpeed(float bSpeed) {
 		speed = bSpeed;
+        multiplier = MainActivity.multiplier;
+        //samples = 1000;
+        samples = MainActivity.samples;
 	}
 
     //public void setMode(boolean runMode) {

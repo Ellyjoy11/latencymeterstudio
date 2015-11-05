@@ -4,13 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -18,8 +18,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -38,6 +36,9 @@ public class MainActivity extends Activity {
 	public static boolean clockWise;
 	public static boolean showSector;
     public static int displayTransmissionDelay;
+    public static int multiplier;
+    public static int samples;
+
 	public static final String TAG = "LatencyMeter";
 	public String appVersion;
 	//public final String MYPREFS = "my shared prefs";
@@ -57,12 +58,18 @@ public class MainActivity extends Activity {
     public static String touchCfg;
     public static String productInfo;
 
+    float defaultSpeed;
+
+    private boolean isBackFromSettings;
+    SharedPreferences userPref;
+
 	@SuppressLint("NewApi")
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
-        prefs = getPreferences(MODE_PRIVATE);
+        userPref = PreferenceManager
+                .getDefaultSharedPreferences(this);
 
 		try {
 			appVersion = this.getPackageManager().getPackageInfo(
@@ -95,9 +102,9 @@ public class MainActivity extends Activity {
 
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
 		myView = (AnimationView) findViewById(R.id.animView);
-		float defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
+		defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
 				/ (float) (speedBar.getMax());
-		myView.setBallSpeed(defaultSpeed);
+
         //modeAuto = true;
         //myView.setMode(modeAuto);
 
@@ -129,14 +136,18 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
+        isBackFromSettings = false;
 		DisplayMetrics displaymetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 		screenWidth = displaymetrics.widthPixels;
 		screenHeight = displaymetrics.heightPixels;
         mDensity = displaymetrics.density;
 
-        tmp = prefs.getString("displayTransmissionDelay", "13");
-        displayTransmissionDelay = Integer.parseInt(tmp);
+        displayTransmissionDelay = Integer.parseInt(userPref.getString("trans", "13"));
+        multiplier = Integer.parseInt(userPref.getString("multi", "5"));
+        samples = Integer.parseInt(userPref.getString("samples", "1000"));
+
+        myView.setBallSpeed(defaultSpeed);
 
         //AnimationView.isAutoDone = false;
         onModeAuto();
@@ -170,7 +181,9 @@ public class MainActivity extends Activity {
 			AlertDialog dialog = builder.create();
 			dialog.show();
 			return true;
-		} else if (item.getItemId() == R.id.action_settings) {
+		}
+        /*
+        if (item.getItemId() == R.id.action_settings) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Display transmission delay, ms");
 
@@ -215,9 +228,18 @@ public class MainActivity extends Activity {
             AlertDialog dialog = builder.create();
             dialog.show();
             return true;
-        } else {
+
+        }
+        */
+        if (item.getItemId() == R.id.action_settings) {
+            isBackFromSettings = true;
+            Intent intent = new Intent(this, com.elena.latencymeter.SetPreferences.class);
+            startActivity(intent);
+            return true;
+        }
+
 			return super.onOptionsItemSelected(item);
-		}
+
 
 	}
 
@@ -319,7 +341,10 @@ public class MainActivity extends Activity {
         //modeAuto = true;
         AnimationView.isAutoDone = false;
         AnimationView.count = -1;
-        finish();
+        //Log.d(TAG, "call onPause and value is " + isBackFromSettings);
+        if (!isBackFromSettings) {
+            finish();
+        }
         super.onPause();
     }
 

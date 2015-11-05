@@ -9,18 +9,18 @@
         <dex dex="/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-050d48efcb4086f0ca8cbec336f57197b55c1ea2.jar" />
     </item>
     <item
-        jar="/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
-        <dex dex="/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/build/intermediates/pre-dexed/debug/classes-e9e05d8a7ff34e44e6ff8c7eecb72169e4c1e76f.jar" />
-    </item>
-    <item
         jar="/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/libs/internal_impl-21.0.3.jar"
         jumboMode="false"
         revision="21.1.2"
         sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
         <dex dex="/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-24381e884d1cc326aa5715d197976d80319e806c.jar" />
+    </item>
+    <item
+        jar="/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/build/intermediates/pre-dexed/debug/classes-e9e05d8a7ff34e44e6ff8c7eecb72169e4c1e76f.jar" />
     </item>
 
 </items>
