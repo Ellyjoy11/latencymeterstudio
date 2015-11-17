@@ -21,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,8 +37,12 @@ public class MainActivity extends Activity {
 	public static boolean clockWise;
 	public static boolean showSector;
     public static int displayTransmissionDelay;
-    public static int multiplier;
+    public static int oldDisplayTransmissionDelay;
+    public static int multiplier=30;
     public static int samples;
+    public static int oldSamples;
+    public static int windowStart;
+    public static int windowEnd;
 
 	public static final String TAG = "LatencyMeter";
 	public String appVersion;
@@ -61,7 +66,7 @@ public class MainActivity extends Activity {
     float defaultSpeed;
 
     private boolean isBackFromSettings;
-    SharedPreferences userPref;
+    public static SharedPreferences userPref;
 
 	@SuppressLint("NewApi")
     @Override
@@ -144,11 +149,82 @@ public class MainActivity extends Activity {
         mDensity = displaymetrics.density;
 
         displayTransmissionDelay = Integer.parseInt(userPref.getString("trans", "13"));
-        multiplier = Integer.parseInt(userPref.getString("multi", "5"));
+        if (displayTransmissionDelay != oldDisplayTransmissionDelay) {
+            AnimationView.isAutoDone = false;
+            AnimationView.resetValues();
+            AnimationView.count = -1;
+            oldDisplayTransmissionDelay = displayTransmissionDelay;
+            myView.invalidate();
+        }
+
+        //multiplier = Integer.parseInt(userPref.getString("multi", "10"));
         samples = Integer.parseInt(userPref.getString("samples", "1000"));
+        if (samples > oldSamples) {
+            oldSamples = samples;
+            AnimationView.resetValues();
+            AnimationView.showChart = false;
+            myView.invalidate();
+        }
+        windowStart = Integer.parseInt(userPref.getString("start", "1"));
+        windowEnd = Integer.parseInt(userPref.getString("end", Integer.toString(samples)));
+
+        if (!(windowStart > 0 && windowEnd <= samples)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(
+                    "Sampling window must be set between 1 and total samples number!")
+                    .setTitle("Oops...");
+
+            builder.setPositiveButton("OK",
+                    new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            isBackFromSettings = true;
+                            Intent intent = new Intent(getApplicationContext(),
+                                    SetPreferences.class);
+                            startActivity(intent);
+                        }
+                    });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
+        if (windowStart >= windowEnd) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(
+                    "Start of sampling window must be less than its end!")
+                    .setTitle("Oops...");
+
+            builder.setPositiveButton("OK",
+                    new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            isBackFromSettings = true;
+                            Intent intent = new Intent(getApplicationContext(),
+                                    SetPreferences.class);
+                            startActivity(intent);
+                        }
+                    });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
 
         myView.setBallSpeed(defaultSpeed);
-
+        myView.setSamplingWindow(windowStart-1, windowEnd-1);
+        if (!AnimationView.isAutoDone) {
+            Toast.makeText(
+                    this,
+                    "When the ball appears,\nkeep your finger on it",
+                    Toast.LENGTH_LONG).show();
+        }
+        //if (AnimationView.showChart) {
+        //    AnimationView.recalcStats();
+        //    myView.invalidate();
+        //}
         //AnimationView.isAutoDone = false;
         onModeAuto();
 
@@ -295,6 +371,21 @@ public class MainActivity extends Activity {
 
 	}
 
+    public void restartClicked(View view) {
+        AnimationView.showChart = false;
+        AnimationView.resetValues();
+
+        AnimationView.isAutoDone = false;
+            Toast.makeText(
+                    this,
+                    "When the ball appears,\nkeep your finger on it",
+                    Toast.LENGTH_LONG).show();
+
+        AnimationView.count = -1;
+        myView.invalidate();
+        onModeAuto();
+    }
+
     public void onModeAuto() {
         new Thread(new Runnable() {
             @Override
@@ -339,8 +430,8 @@ public class MainActivity extends Activity {
     @Override
     public void onPause() {
         //modeAuto = true;
-        AnimationView.isAutoDone = false;
-        AnimationView.count = -1;
+        //AnimationView.isAutoDone = false;
+        //AnimationView.count = -1;
         //Log.d(TAG, "call onPause and value is " + isBackFromSettings);
         if (!isBackFromSettings) {
             finish();

@@ -9,9 +9,9 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Display transmission delay, ms" />
-
+<!--
     <EditTextPreference
-        android:defaultValue="5"
+        android:defaultValue="10"
         android:inputType="number"
         android:key="multi"
         android:maxLines="1"
@@ -19,7 +19,7 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Multiplier for IC/Kernel upper limit" />
-
+-->
     <EditTextPreference
         android:defaultValue="1000"
         android:inputType="number"
@@ -29,5 +29,25 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Samples for test" />
+
+    <EditTextPreference
+        android:defaultValue="1"
+        android:inputType="number"
+        android:key="start"
+        android:maxLines="1"
+        android:persistent="true"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Sampling window, start #" />
+
+    <EditTextPreference
+        android:defaultValue="1000"
+        android:inputType="number"
+        android:key="end"
+        android:maxLines="1"
+        android:persistent="true"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Sampling window, end #" />
 
 </PreferenceScreen><!-- From: file:/Users/elenalast/AndroidstudioProjects/LatencyMeter/app/src/main/res/xml/pref_general.xml -->

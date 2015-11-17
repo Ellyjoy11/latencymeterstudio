@@ -13,7 +13,7 @@ import android.preference.PreferenceManager;
 public class SettingsFragment extends PreferenceFragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private final String[] keys = { "trans", "samples", "multi" };
+    private final String[] keys = { "trans", "samples", "start", "end" };
     SharedPreferences userPref;
 
     @Override
@@ -54,6 +54,16 @@ public class SettingsFragment extends PreferenceFragment implements
             Preference pref = (Preference) findPreference(key_string);
             String value = userPref.getString(key_string, "5");
             pref.setSummary(value);
+        }
+        if (Integer.parseInt(userPref.getString("end", "1000")) > Integer.parseInt(userPref.getString("samples", "1000"))) {
+            Preference prefEnd = (Preference) findPreference("end");
+            userPref.edit().putString("end", userPref.getString("samples", "1000")).commit();
+            prefEnd.setSummary(userPref.getString("samples", "1000"));
+        }
+        if (Integer.parseInt(userPref.getString("start", "1")) >= Integer.parseInt(userPref.getString("end", "1000"))) {
+            Preference prefStart = (Preference) findPreference("start");
+            userPref.edit().putString("start", "1").commit();
+            prefStart.setSummary("1");
         }
     }
 
