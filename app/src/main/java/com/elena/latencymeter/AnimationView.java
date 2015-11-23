@@ -112,8 +112,8 @@ public class AnimationView extends View {
     float xStep;
 
     int x1, x2, y1, y2;
-    int axisPad = 0;
-    int layoutPads = 32;
+    int axisPad = 20;
+    int layoutPads = 20;
     public static float winStartX, winEndX;
 
 	double alpha, theta;
@@ -296,8 +296,9 @@ public class AnimationView extends View {
             double yMax = Math.round(maxChart + 1 );
             double yMin = Math.round(minChart - 1);
             //float xStep = (x2 - x1)/(samples+1);
-            sampleShow = samples / (x2 - x1) + 1;
-            xStep = sampleShow * (x2 - x1)/(samples+1);
+            sampleShow = samples / (x2 - x1 - layoutPads) + 1;
+            xStep = sampleShow * (x2 - x1 - layoutPads)/(samples+1);
+            Log.d(TAG, "axis and step: " + (x2-x1 - layoutPads) + ".." + xStep);
             /*
             if (xStep < 1.0) {
                 sampleShow = 2;
@@ -311,7 +312,7 @@ public class AnimationView extends View {
             int n=0;
             double avgSample;
             double sumSample;
-            for (int i=0; i < samples - sampleShow + 1; i+=sampleShow) {
+            for (int i=0; i < samples; i+=sampleShow) {
                 float pointX = x1 + n*xStep;
                 if (xStep < 4) {
                     paintPoint.setStrokeWidth(xStep);
@@ -323,7 +324,9 @@ public class AnimationView extends View {
 
                 sumSample = 0;
                 for (int k = sampleShow-1; k >= 0; k--) {
-                    sumSample += myLatency.get(i+k);
+                    if (i+k < myLatency.size()) {
+                        sumSample += myLatency.get(i + k);
+                    }
                 }
                 avgSample = sumSample / sampleShow;
                 float pointY = (float)(y2 + yMin/coef - avgSample / coef);
@@ -338,6 +341,7 @@ public class AnimationView extends View {
                     winStartX = pointX;
                 }
                     if ((i+k)==windowEnd) {
+                        //Log.d(TAG, "index, winEnd: " + (i+k) + ".." + windowEnd);
                         paintAxis.setColor(Color.parseColor("#FFA500"));
                         paintAxis.setStrokeWidth(4);
                         canvas.drawLine(pointX, y1, pointX, y2, paintAxis);
@@ -1103,23 +1107,27 @@ public class AnimationView extends View {
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    /*
-                    if (((Math.abs(event.getX() - winStartX) < 50 && Math.abs(windowEnd - windowStart) > 10) ||
-                            (Math.abs(windowEnd - windowStart) <= 10 &&
-                                    (winStartX - event.getX()) < 50 && (winStartX - event.getX()) > 0))
-                    &&
-                            (event.getY() > y1 && event.getY() < y2) && isStartMoving) {
-                            */
-                    if (Math.abs(event.getX() - winStartX) < 80 &&
-                            (event.getY() > y1 && event.getY() < y2) && isStartMoving) {
+                    if ((Math.abs(event.getX() - winStartX) < 80 || Math.abs(event.getX() - winEndX) < 80)
+                            &&
+                            (event.getY() > y1 && event.getY() < y2) && !isStartMoving && !isEndMoving) {
+                        if (Math.abs(event.getX() - winStartX) <= Math.abs(event.getX() - winEndX)) {
+                            isEndMoving = false;
+                            isStartMoving = true;
+                        } else {
+                            isEndMoving = true;
+                            isStartMoving = false;
+                        }
+                    }
+                    //if (Math.abs(event.getX() - winStartX) < 80 &&
+                    if (event.getY() > y1 && event.getY() < y2 && isStartMoving) {
                         if (event.getX() < x1) {
                             windowStart = 0;
                         } else {
                             windowStart = (int) ((event.getX() - x1) * sampleShow / xStep);
                         }
                     }
-                    if (Math.abs(event.getX() - winEndX) < 80 &&
-                            (event.getY() > y1 && event.getY() < y2) && isEndMoving) {
+                    //if (Math.abs(event.getX() - winEndX) < 80 &&
+                    if  (event.getY() > y1 && event.getY() < y2 && isEndMoving) {
                         if (event.getX() > x1 + xStep * samples / sampleShow) {
                             windowEnd = samples - 1;
                         } else {
