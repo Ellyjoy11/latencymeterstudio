@@ -283,8 +283,6 @@ public class AnimationView extends View {
     @Override
 	protected void onDraw(Canvas canvas) {
 
-		tvSpeed.setText("speed\n" + String.format("%.2f", speed)
-                + " rad/s");
         //Log.d(TAG, "multiplier and samples: " + multiplier + "..." + samples);
 
         if (showChart) {
@@ -1229,6 +1227,7 @@ public class AnimationView extends View {
         //windowStart = MainActivity.windowStart - 1;
         //windowEnd = MainActivity.windowEnd - 1;
         showChart = false;
+        tvSpeed.setText(String.format("speed\n%.2f rad/s", speed));
 	}
 
     public void setSamplingWindow (int winStart, int winEnd) {
