@@ -256,12 +256,7 @@ public class AnimationView extends View {
         paintStat.setStyle(Paint.Style.FILL_AND_STROKE);
 	}
 
-	@SuppressLint("NewApi")
-    @Override
-	protected void onDraw(Canvas canvas) {
-
-        //Log.d(TAG, "multiplier and samples: " + multiplier + "..." + samples);
-
+    void lookupViews() {
         restart = (Button) this.getRootView().findViewById(R.id.buttonRestart);
         tvSpeed = (TextView) this.getRootView().findViewById(R.id.textViewSpeed);
 		tvIC = (TextView) this.getRootView().findViewById(R.id.textViewIC);
@@ -282,9 +277,15 @@ public class AnimationView extends View {
         tvMed_w = (TextView) this.getRootView().findViewById(R.id.textViewMed_w);
         tvMax_w = (TextView) this.getRootView().findViewById(R.id.textViewMax_w);
         tvStd_w = (TextView) this.getRootView().findViewById(R.id.textViewStd_w);
+    }
+
+	@SuppressLint("NewApi")
+    @Override
+	protected void onDraw(Canvas canvas) {
 
 		tvSpeed.setText("speed\n" + String.format("%.2f", speed)
                 + " rad/s");
+        //Log.d(TAG, "multiplier and samples: " + multiplier + "..." + samples);
 
         if (showChart) {
             restart.setVisibility(VISIBLE);

@@ -107,6 +107,7 @@ public class MainActivity extends Activity {
 
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
 		myView = (AnimationView) findViewById(R.id.animView);
+		myView.lookupViews();
 		defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
 				/ (float) (speedBar.getMax());
 
