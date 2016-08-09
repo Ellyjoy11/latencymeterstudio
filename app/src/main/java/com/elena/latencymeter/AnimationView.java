@@ -441,7 +441,6 @@ public class AnimationView extends View {
                 newY = cY + radius * Math.sin(ballAngle);
                 noiseState = setPathColor();
                 //Log.d(TAG, "call color function");
-                canvas.drawPath(animPath, paint);
                 //tvSpeed.setText("speed\n" + String.format("%.2f", speed)
                 //        + " rad/s" + "\nNState: " + noiseState);
 
@@ -726,7 +725,6 @@ public class AnimationView extends View {
                 newY = cY + radius * Math.sin(ballAngle);
                 noiseState = setPathColor();
                 //Log.d(TAG, "call color function");
-                canvas.drawPath(animPath, paint);
                 //tvSpeed.setText("speed\n" + String.format("%.2f", speed)
                 //        + " rad/s" + "\nNState: " + noiseState);
 
