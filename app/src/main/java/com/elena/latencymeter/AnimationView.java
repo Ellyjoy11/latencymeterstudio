@@ -147,6 +147,7 @@ public class AnimationView extends View {
     Button restart;
 
     private RectF oval = null;
+    private double eventRatePrev = -1;
 
 	public AnimationView(Context context) {
 		super(context);
@@ -383,11 +384,14 @@ public class AnimationView extends View {
             }
 
             ///////////////////////////
-            if (eventRate == 0) {
-                tvEvRate.setText("event rate: --");
-            } else {
-                tvEvRate.setText("event rate: " + String.format("%.2f", eventRate)
-                        + " Hz");
+            if (eventRatePrev != eventRate) {
+                if (eventRate == 0) {
+                    tvEvRate.setText("event rate: --");
+                } else {
+                    tvEvRate.setText("event rate: " + String.format("%.2f", eventRate)
+                            + " Hz");
+                }
+                eventRatePrev = eventRate;
             }
 
             if (averageOutputLatency > 0) {
@@ -662,11 +666,14 @@ public class AnimationView extends View {
                 tvIC_w.setTextColor(Color.parseColor("#FFA500"));
             }
 
-            if (eventRate == 0) {
-                tvEvRate.setText("event rate: --");
-            } else {
-                tvEvRate.setText("event rate: " + String.format("%.2f", eventRate)
-                        + " Hz");
+            if (eventRatePrev != eventRate) {
+                if (eventRate == 0) {
+                    tvEvRate.setText("event rate: --");
+                } else {
+                    tvEvRate.setText("event rate: " + String.format("%.2f", eventRate)
+                            + " Hz");
+                }
+                eventRatePrev = eventRate;
             }
 
             if (averageOutputLatency > 0) {
