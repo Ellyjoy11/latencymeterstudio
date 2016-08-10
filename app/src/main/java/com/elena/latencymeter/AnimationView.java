@@ -146,6 +146,8 @@ public class AnimationView extends View {
     public static boolean showChart;
     Button restart;
 
+    private RectF oval = null;
+
 	public AnimationView(Context context) {
 		super(context);
 		initMyView();
@@ -254,6 +256,8 @@ public class AnimationView extends View {
         paintStat.setTextSize(textSize);
         paintStat.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
         paintStat.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        oval = new RectF();
 	}
 
     void lookupViews() {
@@ -499,7 +503,7 @@ public class AnimationView extends View {
             }
 
             // ////////////////try to fill sector///////////
-            RectF oval = new RectF((float) (cX - radius),
+            oval.set((float) (cX - radius),
                     (float) (cY - radius), (float) (cX + radius),
                     (float) (cY + radius));
             if (!(pos[1] == cY)) {
