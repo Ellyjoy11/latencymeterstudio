@@ -148,6 +148,9 @@ public class AnimationView extends View {
 
     private RectF oval = null;
     private double eventRatePrev = -1;
+    private int statsTextColorPrev = Color.TRANSPARENT;
+    private static final int STATS_COLOR1 = Color.parseColor("#008000");
+    private static final int STATS_COLOR2 = Color.parseColor("#FFA500");
 
 	public AnimationView(Context context) {
 		super(context);
@@ -282,6 +285,26 @@ public class AnimationView extends View {
         tvMed_w = (TextView) this.getRootView().findViewById(R.id.textViewMed_w);
         tvMax_w = (TextView) this.getRootView().findViewById(R.id.textViewMax_w);
         tvStd_w = (TextView) this.getRootView().findViewById(R.id.textViewStd_w);
+    }
+
+    void setStatsTextColor(int color) {
+        if (color != statsTextColorPrev) {
+            tvDisp.setTextColor(color);
+            tvTotal.setTextColor(color);
+            tvMin.setTextColor(color);
+            tvMed.setTextColor(color);
+            tvMax.setTextColor(color);
+            tvStd.setTextColor(color);
+            tvIC.setTextColor(color);
+            tvDisp_w.setTextColor(color);
+            tvTotal_w.setTextColor(color);
+            tvMin_w.setTextColor(color);
+            tvMed_w.setTextColor(color);
+            tvMax_w.setTextColor(color);
+            tvStd_w.setTextColor(color);
+            tvIC_w.setTextColor(color);
+            statsTextColorPrev = color;
+        }
     }
 
 	@SuppressLint("NewApi")
@@ -558,6 +581,7 @@ public class AnimationView extends View {
                 }
             }
 
+            int statsColor;
             // ////////////////
             // ///////////////change theta to alpha again if needed
             if ((touchActive && (ballDir * sweepAngle) > 0)
@@ -565,16 +589,7 @@ public class AnimationView extends View {
 
                 paintText.setColor(Color.RED);
                 paintTouch.setColor(Color.RED);
-                tvTotal.setTextColor(Color.RED);
-                tvMin.setTextColor(Color.RED);
-                tvMed.setTextColor(Color.RED);
-                tvMax.setTextColor(Color.RED);
-                tvStd.setTextColor(Color.RED);
-                tvTotal_w.setTextColor(Color.RED);
-                tvMin_w.setTextColor(Color.RED);
-                tvMed_w.setTextColor(Color.RED);
-                tvMax_w.setTextColor(Color.RED);
-                tvStd_w.setTextColor(Color.RED);
+                statsColor = Color.RED;
                 if (touchActive && (touchDelta > bm_offsetX)) {
                     canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
                             wrongMove);
@@ -586,16 +601,7 @@ public class AnimationView extends View {
 
                 paintText.setColor(Color.BLACK);
                 paintTouch.setColor(Color.GRAY);
-                tvTotal.setTextColor(Color.parseColor("#FFA500"));
-                tvMin.setTextColor(Color.parseColor("#FFA500"));
-                tvMed.setTextColor(Color.parseColor("#FFA500"));
-                tvMax.setTextColor(Color.parseColor("#FFA500"));
-                tvStd.setTextColor(Color.parseColor("#FFA500"));
-                tvTotal_w.setTextColor(Color.parseColor("#FFA500"));
-                tvMin_w.setTextColor(Color.parseColor("#FFA500"));
-                tvMed_w.setTextColor(Color.parseColor("#FFA500"));
-                tvMax_w.setTextColor(Color.parseColor("#FFA500"));
-                tvStd_w.setTextColor(Color.parseColor("#FFA500"));
+                statsColor = STATS_COLOR2;
             }
 
             // /////////////////////
@@ -633,38 +639,11 @@ public class AnimationView extends View {
                 latency = 0;
             }
             if (median > 0) {
-
-                tvDisp.setTextColor(Color.parseColor("#008000"));
-                tvTotal.setTextColor(Color.parseColor("#008000"));
-                tvMin.setTextColor(Color.parseColor("#008000"));
-                tvMed.setTextColor(Color.parseColor("#008000"));
-                tvMax.setTextColor(Color.parseColor("#008000"));
-                tvStd.setTextColor(Color.parseColor("#008000"));
-                tvIC.setTextColor(Color.parseColor("#008000"));
-                tvDisp_w.setTextColor(Color.parseColor("#008000"));
-                tvTotal_w.setTextColor(Color.parseColor("#008000"));
-                tvMin_w.setTextColor(Color.parseColor("#008000"));
-                tvMed_w.setTextColor(Color.parseColor("#008000"));
-                tvMax_w.setTextColor(Color.parseColor("#008000"));
-                tvStd_w.setTextColor(Color.parseColor("#008000"));
-                tvIC_w.setTextColor(Color.parseColor("#008000"));
+                statsColor = STATS_COLOR1;
             } else {
-
-                tvDisp.setTextColor(Color.parseColor("#FFA500"));
-                tvTotal.setTextColor(Color.parseColor("#FFA500"));
-                tvMin.setTextColor(Color.parseColor("#FFA500"));
-                tvMed.setTextColor(Color.parseColor("#FFA500"));
-                tvMax.setTextColor(Color.parseColor("#FFA500"));
-                tvStd.setTextColor(Color.parseColor("#FFA500"));
-                tvIC.setTextColor(Color.parseColor("#FFA500"));
-                tvDisp_w.setTextColor(Color.parseColor("#FFA500"));
-                tvTotal_w.setTextColor(Color.parseColor("#FFA500"));
-                tvMin_w.setTextColor(Color.parseColor("#FFA500"));
-                tvMed_w.setTextColor(Color.parseColor("#FFA500"));
-                tvMax_w.setTextColor(Color.parseColor("#FFA500"));
-                tvStd_w.setTextColor(Color.parseColor("#FFA500"));
-                tvIC_w.setTextColor(Color.parseColor("#FFA500"));
+                statsColor = STATS_COLOR2;
             }
+            setStatsTextColor(statsColor);
 
             if (eventRatePrev != eventRate) {
                 if (eventRate == 0) {
@@ -692,13 +671,13 @@ public class AnimationView extends View {
             }
 
             if (touchActive && myLatency.size() < samples && isAutoDone) {
-                paintText.setColor(Color.parseColor("#FFA500"));
+                paintText.setColor(STATS_COLOR2);
                 paintText.setStrokeWidth(2);
                 paintText.setTextSize(80 * screenDpi / 4);
                 canvas.drawText("" + (samples - myLatency.size()), cX - 40,
                         cY, paintText);
             } else if (touchActive && isAutoDone) {
-                paintText.setColor(Color.parseColor("#008000"));
+                paintText.setColor(STATS_COLOR1);
                 paintText.setStrokeWidth(4);
                 paintText.setTextSize(100 * screenDpi / 4);
                 canvas.drawText("DONE", cX - 80, cY, paintText);
