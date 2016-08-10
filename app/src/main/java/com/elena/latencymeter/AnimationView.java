@@ -199,7 +199,7 @@ public class AnimationView extends View {
 		//paint.setColor(Color.BLUE);
 		paint.setStrokeWidth(bm_offsetX);
 		paint.setStyle(Paint.Style.STROKE);
-        setPathColor();
+        noiseState = setPathColor();
 
         autoPaint = new Paint();
         autoPaint.setColor(Color.parseColor("#81d8d0"));
@@ -509,7 +509,7 @@ public class AnimationView extends View {
 
             newX = cX + radius * Math.cos(ballAngle);
             newY = cY + radius * Math.sin(ballAngle);
-            noiseState = setPathColor();
+            //noiseState = setPathColor();
             //Log.d(TAG, "call color function");
             //tvSpeed.setText("speed\n" + String.format("%.2f", speed)
             //        + " rad/s" + "\nNState: " + noiseState);
