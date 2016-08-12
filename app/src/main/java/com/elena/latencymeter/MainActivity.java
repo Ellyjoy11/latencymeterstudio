@@ -43,6 +43,7 @@ public class MainActivity extends Activity {
     public static int oldSamples;
     public static int windowStart;
     public static int windowEnd;
+    private static MainActivity myActivity;
 
 	public static final String TAG = "LatencyMeter";
 	public String appVersion;
@@ -107,6 +108,7 @@ public class MainActivity extends Activity {
 
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
 		myView = (AnimationView) findViewById(R.id.animView);
+		myView.lookupViews();
 		defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
 				/ (float) (speedBar.getMax());
 
@@ -136,9 +138,28 @@ public class MainActivity extends Activity {
         //myView.setPathColor();
         //myView.invalidate();
 
-	}
+        myActivity = this;
+    }
 
-	@Override
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        myActivity = null;
+    }
+
+    static void updateStats() {
+        if (myActivity != null && AnimationView.isAutoDone) {
+            myActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    myView.updateStatsViews();
+                }
+            });
+        }
+    }
+
+    @Override
 	public void onResume() {
 		super.onResume();
         isBackFromSettings = false;
