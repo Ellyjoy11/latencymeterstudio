@@ -236,17 +236,14 @@ public class MainActivity extends Activity {
 
         myView.setBallSpeed(defaultSpeed);
         myView.setSamplingWindow(windowStart-1, windowEnd-1);
+        myView.invalidate();
         if (!AnimationView.isAutoDone) {
             Toast.makeText(
                     this,
                     "When the ball appears,\nkeep your finger on it",
                     Toast.LENGTH_LONG).show();
         }
-        //if (AnimationView.showChart) {
-        //    AnimationView.recalcStats();
-        //    myView.invalidate();
-        //}
-        //AnimationView.isAutoDone = false;
+
         onModeAuto();
 
 	}

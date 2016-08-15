@@ -713,9 +713,10 @@ public class AnimationView extends View {
             }
 
             ballAngle += ballDir * speed / currFps;
+            invalidate();
         }
 
-		invalidate();
+
 	}
 
 	@Override
@@ -863,6 +864,7 @@ public class AnimationView extends View {
                     }
                     //Log.d(TAG, "window: " + windowStart + ".." + windowEnd);
                     setSamplingWindow(windowStart, windowEnd);
+                    this.invalidate();
                     break;
                 case MotionEvent.ACTION_CANCEL:
                     isEndMoving = false;
