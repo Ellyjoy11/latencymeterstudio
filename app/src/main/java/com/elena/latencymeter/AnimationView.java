@@ -124,7 +124,7 @@ public class AnimationView extends View {
     public static double newY = 0;
     public static double prevX;
     public static double prevY;
-    public static boolean isAutoDone = false;
+    public static boolean isAutoDone;
 	double ballA, ballB, touchA, touchB;
 	TextView tvSpeed, tvIC, tvMin, tvMax, tvMed, tvStd;
     TextView tvDisp, tvOut, tvTotal, tvEvRate;
@@ -151,6 +151,7 @@ public class AnimationView extends View {
     private int statsTextColorPrev = Color.TRANSPARENT;
     private static final int STATS_COLOR1 = Color.parseColor("#008000");
     private static final int STATS_COLOR2 = Color.parseColor("#FFA500");
+    private static int statsColor;
 
 	public AnimationView(Context context) {
 		super(context);
@@ -262,6 +263,8 @@ public class AnimationView extends View {
         paintStat.setStyle(Paint.Style.FILL_AND_STROKE);
 
         oval = new RectF();
+
+        isAutoDone = false;
 	}
 
     void lookupViews() {
@@ -308,6 +311,7 @@ public class AnimationView extends View {
     }
 
     void updateStatsViews() {
+
         if (averageLatency > 0) {
             tvTotal.setTypeface(Typeface.DEFAULT_BOLD);
             tvTotal_w.setTypeface(Typeface.DEFAULT_BOLD);
@@ -315,12 +319,14 @@ public class AnimationView extends View {
                     - averageOutputLatency - averageDispatchLatency) + " ms");
             tvTotal.setText(String.format("%.2f", averageLatency)
                     + " ms");
+            statsColor = STATS_COLOR1;
             showChart = true;
         } else {
             tvTotal.setTypeface(Typeface.DEFAULT);
             tvTotal_w.setTypeface(Typeface.DEFAULT);
             tvIC.setText(" --");
             tvTotal.setText(" --");
+            statsColor = STATS_COLOR2;
             showChart = false;
         }
 
@@ -337,11 +343,10 @@ public class AnimationView extends View {
 
         if (averageOutputLatency > 0) {
             tvOut.setText(String.format("%.2f", averageOutputLatency) + " ms");
-            tvOut.setTextColor(Color.parseColor("#008000"));
+            tvOut.setTextColor(STATS_COLOR1);
             tvOut.setTypeface(Typeface.DEFAULT);
             tvOut_w.setTextColor(Color.parseColor("#008000"));
             tvOut_w.setTypeface(Typeface.DEFAULT);
-            // isAutoDone = true;
         } else {
             tvOut.setText(" --");
             tvOut.setTextColor(Color.RED);
@@ -349,6 +354,7 @@ public class AnimationView extends View {
             tvOut_w.setTextColor(Color.RED);
             tvOut_w.setTypeface(Typeface.DEFAULT_BOLD);
         }
+        setStatsTextColor(statsColor);
     }
 
 	@SuppressLint("NewApi")
@@ -460,7 +466,7 @@ public class AnimationView extends View {
                 }
                 eventRatePrev = eventRate;
             }
-
+/*
             if (averageOutputLatency > 0) {
                 tvOut.setText(String.format("%.2f", averageOutputLatency) + " ms");
                 //tvOut.setTextColor(Color.parseColor("#008000"));
@@ -490,6 +496,7 @@ public class AnimationView extends View {
             } else {
                 tvDisp.setText(String.format("%.2f", averageDispatchLatency) + " ms");
             }
+            */
             //////////////////////////
 
         } else {
@@ -625,7 +632,6 @@ public class AnimationView extends View {
                 }
             }
 
-            int statsColor;
             // ////////////////
             // ///////////////change theta to alpha again if needed
             if ((touchActive && (ballDir * sweepAngle) > 0)
@@ -633,7 +639,7 @@ public class AnimationView extends View {
 
                 paintText.setColor(Color.RED);
                 paintTouch.setColor(Color.RED);
-                statsColor = Color.RED;
+                //statsColor = Color.RED;
                 if (touchActive && (touchDelta > bm_offsetX)) {
                     canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
                             wrongMove);
@@ -645,7 +651,7 @@ public class AnimationView extends View {
 
                 paintText.setColor(Color.BLACK);
                 paintTouch.setColor(Color.GRAY);
-                statsColor = STATS_COLOR2;
+                //statsColor = STATS_COLOR2;
             }
 
             // /////////////////////
@@ -682,13 +688,14 @@ public class AnimationView extends View {
             } else {
                 latency = 0;
             }
+            /*
             if (median > 0) {
                 statsColor = STATS_COLOR1;
             } else {
                 statsColor = STATS_COLOR2;
             }
             setStatsTextColor(statsColor);
-
+            */
             if (eventRatePrev != eventRate) {
                 if (eventRate == 0) {
                     tvEvRate.setText("event rate: --");
@@ -929,7 +936,7 @@ public class AnimationView extends View {
                 }
             }
 
-        MainActivity.updateStats();
+       MainActivity.updateStats();
     }
 
 	public void setBallSpeed(float bSpeed) {
@@ -939,7 +946,7 @@ public class AnimationView extends View {
         samples = MainActivity.samples;
         //windowStart = MainActivity.windowStart - 1;
         //windowEnd = MainActivity.windowEnd - 1;
-        showChart = false;
+        //showChart = false;
         tvSpeed.setText(String.format("speed\n%.2f rad/s", speed));
 	}
 
@@ -962,6 +969,7 @@ public class AnimationView extends View {
         averageLatency = 0;
         averageDispatchLatency = 0;
         if (!isAutoDone) {
+            count = -1;
             averageOutputLatency = 0;
         }
         minL = 0;

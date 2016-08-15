@@ -74,6 +74,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        Log.d(TAG, "calling onCreate");
         userPref = PreferenceManager
                 .getDefaultSharedPreferences(this);
 
@@ -109,11 +110,10 @@ public class MainActivity extends Activity {
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
 		myView = (AnimationView) findViewById(R.id.animView);
 		myView.lookupViews();
+        myView.count = -1;
+
 		defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
 				/ (float) (speedBar.getMax());
-
-        //modeAuto = true;
-        //myView.setMode(modeAuto);
 
 		speedBar.setOnSeekBarChangeListener(speedBarOnSeekBarChangeListener);
 
@@ -133,10 +133,6 @@ public class MainActivity extends Activity {
         }
 
 			touchInfo.setText(touchInfoText);
-
-        //String noiseState = readFile(touchFWPath + "/f54/d10_noise_state");
-        //myView.setPathColor();
-        //myView.invalidate();
 
         myActivity = this;
     }
@@ -171,11 +167,12 @@ public class MainActivity extends Activity {
 
         displayTransmissionDelay = Integer.parseInt(userPref.getString("trans", "13"));
         if (displayTransmissionDelay != oldDisplayTransmissionDelay) {
+            oldDisplayTransmissionDelay = displayTransmissionDelay;
+            myView.showChart = false;
             AnimationView.isAutoDone = false;
             AnimationView.resetValues();
             AnimationView.count = -1;
-            oldDisplayTransmissionDelay = displayTransmissionDelay;
-            myView.invalidate();
+            //myView.invalidate();
         }
 
         //multiplier = Integer.parseInt(userPref.getString("multi", "10"));
@@ -184,7 +181,7 @@ public class MainActivity extends Activity {
             oldSamples = samples;
             AnimationView.resetValues();
             AnimationView.showChart = false;
-            myView.invalidate();
+            //myView.invalidate();
         }
         windowStart = Integer.parseInt(userPref.getString("start", "1"));
         windowEnd = Integer.parseInt(userPref.getString("end", Integer.toString(samples)));
@@ -232,7 +229,6 @@ public class MainActivity extends Activity {
             AlertDialog dialog = builder.create();
             dialog.show();
         }
-
 
         myView.setBallSpeed(defaultSpeed);
         myView.setSamplingWindow(windowStart-1, windowEnd-1);
@@ -345,10 +341,8 @@ public class MainActivity extends Activity {
 			float defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
 					/ (float) (speedBar.getMax());
 			myView.setBallSpeed(defaultSpeed);
-            //modeAuto = true;
-            //myView.setMode(modeAuto);
-            //AnimationView.isAutoDone = false;
-            //AnimationView.count = -1;
+            myView.showChart = false;
+            myView.resetValues();
 			myView.invalidate();
 
             onModeAuto();
@@ -410,7 +404,7 @@ public class MainActivity extends Activity {
             public void run() {
                 while (!AnimationView.isAutoDone) {
                     simulateTouch(AnimationView.prevX, AnimationView.prevY, AnimationView.count);
-                    //Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY + "count " + AnimationView.count);
+                    Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY + "count " + AnimationView.count);
                     }
             }
         }).start();
