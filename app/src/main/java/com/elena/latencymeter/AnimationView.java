@@ -42,7 +42,7 @@ public class AnimationView extends View {
 
 	public static final String TAG = "LatencyMeter";
 	Paint paint, paintText, paintTouch, paintStat, autoPaint, paintAxis, paintPoint;
-	Paint wrongMove;
+	Paint wrongMove, paintProgress;
 
     public SharedPreferences userPref;
 
@@ -92,13 +92,13 @@ public class AnimationView extends View {
     public static double minChart, maxChart;
     public static double medianEv, minEv, maxEv;
     public static double stdevLatency;
-    public static double eventRate;
+    public static int eventRate;
     public static double stdevEv;
 
     public static List<Double> myLatency = new ArrayList<Double>();
     public static List<Long> dispatchLatency = new ArrayList<Long>();
     public static List<Double> outputLatency = new ArrayList<Double>();
-    public static List<Double> evRate = new ArrayList<Double>();
+    public static List<Integer> evRate = new ArrayList<Integer>();
 
 	public static int screenWidth;
 	public static int screenHeight;
@@ -147,6 +147,7 @@ public class AnimationView extends View {
     Button restart;
 
     private RectF oval = null;
+    private RectF ovalProgress;
     private double eventRatePrev = -1;
     private int statsTextColorPrev = Color.TRANSPARENT;
     private static final int STATS_COLOR1 = Color.parseColor("#008000");
@@ -214,7 +215,7 @@ public class AnimationView extends View {
 
 		paintText = new Paint();
 		paintText.setColor(Color.parseColor("#FFA500"));
-		paintText.setStrokeWidth(4);
+		paintText.setStrokeWidth(3);
 		paintText.setTextSize(70 * screenDpi / 4);
 		paintText.setStyle(Paint.Style.FILL_AND_STROKE);
 
@@ -253,6 +254,11 @@ public class AnimationView extends View {
         paintPoint.setColor(Color.BLUE);
         paintPoint.setStyle(Paint.Style.FILL_AND_STROKE);
 
+        paintProgress = new Paint();
+        paintProgress.setStrokeWidth(10);
+        paintProgress.setColor(Color.GREEN);
+        paintProgress.setStyle(Paint.Style.STROKE);
+
         textSize = 60 * screenDpi / 4;
         paintStat = new Paint();
         paintStat.setColor(Color.BLACK);
@@ -263,6 +269,13 @@ public class AnimationView extends View {
         paintStat.setStyle(Paint.Style.FILL_AND_STROKE);
 
         oval = new RectF();
+        ovalProgress = new RectF();
+        oval.set((float) (cX - radius),
+                (float) (cY - radius), (float) (cX + radius),
+                (float) (cY + radius));
+        ovalProgress.set((float) (cX - radius/2.5),
+                (float) (cY - radius/2.5), (float) (cX + radius/2.5),
+                (float) (cY + radius/2.5));
 
         isAutoDone = false;
 	}
@@ -306,6 +319,7 @@ public class AnimationView extends View {
             tvMax_w.setTextColor(color);
             tvStd_w.setTextColor(color);
             tvIC_w.setTextColor(color);
+            tvEvRate.setTextColor(color);
             statsTextColorPrev = color;
         }
     }
@@ -339,6 +353,13 @@ public class AnimationView extends View {
             tvDisp.setText(" --");
         } else {
             tvDisp.setText(String.format("%.2f", averageDispatchLatency) + " ms");
+        }
+
+        if (eventRate <= 0) {
+            tvEvRate.setText("event rate: --");
+        } else {
+            tvEvRate.setText("event rate: " + eventRate
+                    + " Hz");
         }
 
         if (averageOutputLatency > 0) {
@@ -376,15 +397,7 @@ public class AnimationView extends View {
             sampleShow = samples / (x2 - x1 - layoutPads) + 1;
             xStep = sampleShow * (x2 - x1 - layoutPads)/(samples+1);
             Log.d(TAG, "axis and step: " + (x2-x1 - layoutPads) + ".." + xStep);
-            /*
-            if (xStep < 1.0) {
-                sampleShow = 2;
-                xStep = 2 * (x2 - x1)/(samples+1);
-                //Log.d(TAG, "step " + xStep);
-            } else {
-                sampleShow = 1;
-            }
-            */
+
             float coef = (float)(yMax - yMin) / (y2 - y1);
             int n=0;
             double avgSample;
@@ -457,47 +470,6 @@ public class AnimationView extends View {
             }
 
             ///////////////////////////
-            if (eventRatePrev != eventRate) {
-                if (eventRate == 0) {
-                    tvEvRate.setText("event rate: --");
-                } else {
-                    tvEvRate.setText("event rate: " + String.format("%.2f", eventRate)
-                            + " Hz");
-                }
-                eventRatePrev = eventRate;
-            }
-/*
-            if (averageOutputLatency > 0) {
-                tvOut.setText(String.format("%.2f", averageOutputLatency) + " ms");
-                //tvOut.setTextColor(Color.parseColor("#008000"));
-                //tvOut.setTypeface(Typeface.DEFAULT);
-                //tvOut_w.setTextColor(Color.parseColor("#008000"));
-                //tvOut_w.setTypeface(Typeface.DEFAULT);
-                // isAutoDone = true;
-            }
-
-            if (averageLatency > 0) {
-                tvTotal.setTypeface(Typeface.DEFAULT_BOLD);
-                tvTotal_w.setTypeface(Typeface.DEFAULT_BOLD);
-                tvIC.setText(String.format("%.2f", averageLatency
-                        - averageOutputLatency - averageDispatchLatency) + " ms");
-                tvTotal.setText(String.format("%.2f", averageLatency)
-                        + " ms");
-                showChart = true;
-            }
-
-            tvMin.setText(String.format("%.2f", minL) + " ms");
-            tvMax.setText(String.format("%.2f", maxL) + " ms");
-            tvMed.setText(String.format("%.2f", median) + " ms");
-            tvStd.setText(String.format("%.2f", stdevLatency) + " ms");
-
-            if (averageDispatchLatency == 0) {
-                tvDisp.setText(" --");
-            } else {
-                tvDisp.setText(String.format("%.2f", averageDispatchLatency) + " ms");
-            }
-            */
-            //////////////////////////
 
         } else {
             restart.setVisibility(INVISIBLE);
@@ -516,10 +488,6 @@ public class AnimationView extends View {
 
             newX = cX + radius * Math.cos(ballAngle);
             newY = cY + radius * Math.sin(ballAngle);
-            //noiseState = setPathColor();
-            //Log.d(TAG, "call color function");
-            //tvSpeed.setText("speed\n" + String.format("%.2f", speed)
-            //        + " rad/s" + "\nNState: " + noiseState);
 
             if (!isAutoDone) {
                 autoX1 = (float) (cX + radMin * Math.cos(ballAngle));
@@ -528,7 +496,6 @@ public class AnimationView extends View {
                 autoY2 = (float) (cY + radMax * Math.sin(ballAngle));
                 canvas.drawLine(autoX1, autoY1, autoX2, autoY2, autoPaint);
             }
-
 
             pos[0] = (float) newX;
             pos[1] = (float) newY;
@@ -555,12 +522,7 @@ public class AnimationView extends View {
             } else {
                 touchA = 0;
             }
-/*
-            if (MainActivity.showSector) {
-                paintTouch.setColor(Color.GREEN);
-                canvas.drawLine(point.x, point.y, cX, cY, paintTouch);
-            }
-            */
+
             paintTouch.setColor(Color.GRAY);
 
             theta = Math
@@ -581,9 +543,9 @@ public class AnimationView extends View {
             }
 
             // ////////////////try to fill sector///////////
-            oval.set((float) (cX - radius),
-                    (float) (cY - radius), (float) (cX + radius),
-                    (float) (cY + radius));
+           // oval.set((float) (cX - radius),
+             //       (float) (cY - radius), (float) (cX + radius),
+               //     (float) (cY + radius)); // oval set is moved to init part
             if (!(pos[1] == cY)) {
                 rawA = Math.atan2(pos[1] - cY, pos[0] - cX);
             } else if (pos[0] < cX) {
@@ -639,7 +601,7 @@ public class AnimationView extends View {
 
                 paintText.setColor(Color.RED);
                 paintTouch.setColor(Color.RED);
-                //statsColor = Color.RED;
+
                 if (touchActive && (touchDelta > bm_offsetX)) {
                     canvas.drawCircle(cX, cY, radius - bm_offsetX / 2,
                             wrongMove);
@@ -651,7 +613,7 @@ public class AnimationView extends View {
 
                 paintText.setColor(Color.BLACK);
                 paintTouch.setColor(Color.GRAY);
-                //statsColor = STATS_COLOR2;
+
             }
 
             // /////////////////////
@@ -675,48 +637,29 @@ public class AnimationView extends View {
                         && ((noiseState.equals("1") && ((latency
                         - averageOutputLatency - dispatchTime) < (multiplier * 1000 / eventRate))) || noiseState.isEmpty() ||
                         noiseState.equals("2"))) { // 30
-                    // is
-                    // set
-                    // to
-                    // exclude
-                    // "cheating"
-                    // samples
+                    // is set to exclude "cheating" samples
                     myLatency.add(latency);
-                    //Log.d(TAG, "latency added: " + latency);
-                    //count = myLatency.size();
+
                 }
             } else {
                 latency = 0;
             }
-            /*
-            if (median > 0) {
-                statsColor = STATS_COLOR1;
-            } else {
-                statsColor = STATS_COLOR2;
-            }
-            setStatsTextColor(statsColor);
-            */
-            if (eventRatePrev != eventRate) {
-                if (eventRate == 0) {
-                    tvEvRate.setText("event rate: --");
-                } else {
-                    tvEvRate.setText("event rate: " + String.format("%.2f", eventRate)
-                            + " Hz");
-                }
-                eventRatePrev = eventRate;
-            }
 
             if (touchActive && myLatency.size() < samples && isAutoDone) {
                 paintText.setColor(STATS_COLOR2);
-                paintText.setStrokeWidth(2);
-                paintText.setTextSize(80 * screenDpi / 4);
-                canvas.drawText("" + (samples - myLatency.size()), cX - 40,
-                        cY, paintText);
+
+                //canvas.drawText("" + (samples - myLatency.size()), cX - 40,
+                //        cY, paintText);
+                canvas.drawArc(ovalProgress, 0, ballDir * 360 * myLatency.size() / samples, false,
+                        paintProgress);
+                //Log.d(TAG, "progress = " + 360 * myLatency.size() / samples);
+                canvas.drawText(Integer.toString(eventRate) + " Hz", cX - 80,
+                                cY, paintText);
             } else if (touchActive && isAutoDone) {
                 paintText.setColor(STATS_COLOR1);
-                paintText.setStrokeWidth(4);
-                paintText.setTextSize(100 * screenDpi / 4);
                 canvas.drawText("DONE", cX - 80, cY, paintText);
+                canvas.drawArc(ovalProgress, 0, 360, false,
+                        paintProgress);
             }
 
             ballAngle += ballDir * speed / currFps;
@@ -758,7 +701,7 @@ public class AnimationView extends View {
                         }
 
                         millis4 = SystemClock.elapsedRealtime();
-                        eventRate = touchCount * 1000.0 / (millis4 - millis3);
+                        eventRate = Math.round(touchCount * 1000 / (millis4 - millis3));
                         evRate.add(eventRate);
                         //Log.d(TAG, "rate added: " + eventRate);
                     }
@@ -975,7 +918,7 @@ public class AnimationView extends View {
         minL = 0;
         maxL = 0;
         stdevLatency = 0;
-        eventRate = 0;
+        eventRate = -1;
         touchCount = 0;
 
         MainActivity.updateStats();

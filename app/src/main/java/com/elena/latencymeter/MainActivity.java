@@ -404,7 +404,7 @@ public class MainActivity extends Activity {
             public void run() {
                 while (!AnimationView.isAutoDone) {
                     simulateTouch(AnimationView.prevX, AnimationView.prevY, AnimationView.count);
-                    Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY + "count " + AnimationView.count);
+                    //Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY + "count " + AnimationView.count);
                     }
             }
         }).start();
