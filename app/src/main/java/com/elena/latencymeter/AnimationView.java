@@ -255,7 +255,7 @@ public class AnimationView extends View {
 
         textSize = 60 * screenDpi / 4;
         paintStat = new Paint();
-        paintStat.setColor(STATS_COLOR2);
+        paintStat.setColor(Color.BLACK);
         paintStat.setStrokeWidth(2);
         paintStat.setTextSize(textSize);
         paintStat.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
