@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
-        Log.d(TAG, "calling onCreate");
+
         userPref = PreferenceManager
                 .getDefaultSharedPreferences(this);
 
@@ -172,7 +172,6 @@ public class MainActivity extends Activity {
             AnimationView.isAutoDone = false;
             AnimationView.resetValues();
             AnimationView.count = -1;
-            //myView.invalidate();
         }
 
         //multiplier = Integer.parseInt(userPref.getString("multi", "10"));
@@ -181,7 +180,6 @@ public class MainActivity extends Activity {
             oldSamples = samples;
             AnimationView.resetValues();
             AnimationView.showChart = false;
-            //myView.invalidate();
         }
         windowStart = Integer.parseInt(userPref.getString("start", "1"));
         windowEnd = Integer.parseInt(userPref.getString("end", Integer.toString(samples)));
@@ -272,55 +270,7 @@ public class MainActivity extends Activity {
 			dialog.show();
 			return true;
 		}
-        /*
-        if (item.getItemId() == R.id.action_settings) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Display transmission delay, ms");
 
-            final EditText input = new EditText(MainActivity.this);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
-            input.setLayoutParams(lp);
-            input.setInputType(InputType.TYPE_CLASS_NUMBER);
-            tmp = prefs.getString("displayTransmissionDelay", "13");
-            input.setText(tmp);
-            builder.setView(input);
-
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String tmpValue = input.getText().toString();
-                    //Log.d(TAG, "value is " + tmpValue + " ms");
-                    SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
-                    editor.putString("displayTransmissionDelay", input.getText().toString());
-                    editor.commit();
-
-                    displayTransmissionDelay = Integer.parseInt(input.getText().toString());
-                    //Log.d(TAG, "integer value is " + displayTransmissionDelay + " ms");
-
-                    AnimationView.isAutoDone = false;
-                    AnimationView.count = -1;
-                    myView.invalidate();
-                    onModeAuto();
-                }
-            });
-            builder.setNegativeButton("Cancel",
-                    new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-
-            AlertDialog dialog = builder.create();
-            dialog.show();
-            return true;
-
-        }
-        */
         if (item.getItemId() == R.id.action_settings) {
             isBackFromSettings = true;
             Intent intent = new Intent(this, com.elena.latencymeter.SetPreferences.class);
@@ -364,11 +314,7 @@ public class MainActivity extends Activity {
 		} else {
 			clockWise = true;
 		}
-		//Log.d(TAG, "direction clockWise: " + clockWise);
-        //modeAuto = true;
-        //myView.setMode(modeAuto);
-		//AnimationView.isAutoDone = false;
-        //AnimationView.count = -1;
+
 		myView.invalidate();
         onModeAuto();
 	}
@@ -441,10 +387,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onPause() {
-        //modeAuto = true;
-        //AnimationView.isAutoDone = false;
-        //AnimationView.count = -1;
-        //Log.d(TAG, "call onPause and value is " + isBackFromSettings);
+
         if (!isBackFromSettings) {
             finish();
         }

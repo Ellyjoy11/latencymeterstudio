@@ -191,7 +191,6 @@ public class AnimationView extends View {
 
 		cX = (screenWidth - bm_offsetX / 2 - 10) / 2;
 		cY = screenHeight - cX - 2 * bm_offsetY;
-		// cY = (screenHeight - bm_offsetY / 2 - 10) / 2;
 
 		radius = cX - bm_offsetX;
         radMin = radius - bm_offsetX / 2;
@@ -224,9 +223,6 @@ public class AnimationView extends View {
 		wrongMove.setStrokeWidth(10);
 		wrongMove.setStyle(Paint.Style.STROKE);
 
-		//count = -1;
-		//touchActive = false;
-
 		point.x = (int) cX;
 		point.y = (int) cY;
 
@@ -234,8 +230,6 @@ public class AnimationView extends View {
 
 		pathMeasure = new PathMeasure(animPath, false);
 		pathLength = pathMeasure.getLength();
-
-		//distance = 0;
 
 		pos = new float[2];
 		tan = new float[2];
@@ -261,8 +255,7 @@ public class AnimationView extends View {
 
         textSize = 60 * screenDpi / 4;
         paintStat = new Paint();
-        paintStat.setColor(Color.BLACK);
-        //paintStat.setColor(Color.parseColor("#F45823"));
+        paintStat.setColor(STATS_COLOR2);
         paintStat.setStrokeWidth(2);
         paintStat.setTextSize(textSize);
         paintStat.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
@@ -325,6 +318,8 @@ public class AnimationView extends View {
     }
 
     void updateStatsViews() {
+
+        Log.d(TAG, "update views function called");
 
         if (averageLatency > 0) {
             tvTotal.setTypeface(Typeface.DEFAULT_BOLD);
@@ -396,7 +391,7 @@ public class AnimationView extends View {
             //float xStep = (x2 - x1)/(samples+1);
             sampleShow = samples / (x2 - x1 - layoutPads) + 1;
             xStep = sampleShow * (x2 - x1 - layoutPads)/(samples+1);
-            Log.d(TAG, "axis and step: " + (x2-x1 - layoutPads) + ".." + xStep);
+            //Log.d(TAG, "axis and step: " + (x2-x1 - layoutPads) + ".." + xStep);
 
             float coef = (float)(yMax - yMin) / (y2 - y1);
             int n=0;
@@ -512,13 +507,13 @@ public class AnimationView extends View {
             // /calculate lines from center to ball and to touch
             if (!((pos[0] - cX) == 0) && !((pos[1] - cY) == 0)) {
                 ballA = (pos[1] - cY) / (pos[0] - cX);
-                // ballB = (pos[0] * cY - cX * pos[1]) / (pos[0] - cX);
+
             } else {
                 ballA = 0;
             }
             if (!((point.x - cX) == 0) && !((point.y - cY) == 0)) {
                 touchA = (point.y - cY) / (point.x - cX);
-                // touchB = cY + (point.y - cY) * (-cX) / (point.x - cX);
+
             } else {
                 touchA = 0;
             }
@@ -652,7 +647,7 @@ public class AnimationView extends View {
                 //        cY, paintText);
                 canvas.drawArc(ovalProgress, 0, ballDir * 360 * myLatency.size() / samples, false,
                         paintProgress);
-                //Log.d(TAG, "progress = " + 360 * myLatency.size() / samples);
+
                 canvas.drawText(Integer.toString(eventRate) + " Hz", cX - 80,
                                 cY, paintText);
             } else if (touchActive && isAutoDone) {
@@ -713,8 +708,6 @@ public class AnimationView extends View {
                     theta = 0;
                     touchActive = false;
                     //Log.d(TAG, "touch up happened");
-                    //count = -1;
-                    // dispatchTime = 0;
 
                     if (!isAutoDone && outputLatency.size() == 200) {
 
@@ -726,7 +719,7 @@ public class AnimationView extends View {
 
                         }
                         averageOutputLatency = MainActivity.displayTransmissionDelay + sumOutput * 1.0 / (outputLatency.size() - 50);
-                        //averageOutputLatency = sumOutput * 1.0 / (outputLatency.size());
+
                         prevX = cX;
                         prevY = cY;
                         isAutoDone = true;
@@ -743,7 +736,6 @@ public class AnimationView extends View {
                                 e.printStackTrace();
                             }
                         }
-                        //setMode(false);
 
                     }
                     recalcStats();
@@ -778,7 +770,7 @@ public class AnimationView extends View {
                             isStartMoving = false;
                         }
                     }
-                    //if (Math.abs(event.getX() - winStartX) < 80 &&
+
                     if (event.getY() > y1 && event.getY() < y2 && isStartMoving) {
                         if (event.getX() < x1) {
                             windowStart = 0;
@@ -786,7 +778,7 @@ public class AnimationView extends View {
                             windowStart = (int) ((event.getX() - x1) * sampleShow / xStep);
                         }
                     }
-                    //if (Math.abs(event.getX() - winEndX) < 80 &&
+
                     if  (event.getY() > y1 && event.getY() < y2 && isEndMoving) {
                         if (event.getX() > x1 + xStep * samples / sampleShow) {
                             windowEnd = samples - 1;
@@ -831,7 +823,6 @@ public class AnimationView extends View {
 
     public static void recalcStats() {
 
-            //Log.d(TAG, "array: " + myLatency.size());
             if (myLatency.size() == samples) {
 
                 double sum = 0;
@@ -840,14 +831,14 @@ public class AnimationView extends View {
                 double[] numArray = new double[myLatency.size()];
                 double[] numWindowArray = new double[windowEnd - windowStart + 1];
                 for (int i = 0; i < myLatency.size(); i++) {
-                    //sum += myLatency.get(i);
+
                     numArray[i] = myLatency.get(i);
                 }
                 for (int i = windowStart; i <= windowEnd; i++) {
                     sum += myLatency.get(i);
                     numWindowArray[i - windowStart] = myLatency.get(i);
                 }
-                //averageLatency = sum * 1.0 / (myLatency.size());
+
                 averageLatency = sum * 1.0 / (windowEnd - windowStart + 1);
 
                 if (isAutoDone) {
@@ -861,7 +852,7 @@ public class AnimationView extends View {
                 for (int i = windowStart; i <= windowEnd; i++) {
                     devSum += Math.pow(myLatency.get(i) - averageLatency, 2);
                 }
-                //stdevLatency = Math.sqrt(devSum * 1.0 / myLatency.size());
+
                 stdevLatency = Math.sqrt(devSum * 1.0 / (windowEnd - windowStart + 1));
                 Arrays.sort(numArray);
                 Arrays.sort(numWindowArray);
@@ -885,11 +876,7 @@ public class AnimationView extends View {
 	public void setBallSpeed(float bSpeed) {
 		speed = bSpeed;
         multiplier = MainActivity.multiplier;
-        //samples = 1000;
         samples = MainActivity.samples;
-        //windowStart = MainActivity.windowStart - 1;
-        //windowEnd = MainActivity.windowEnd - 1;
-        //showChart = false;
         tvSpeed.setText(String.format("speed\n%.2f rad/s", speed));
 	}
 
@@ -937,7 +924,6 @@ public class AnimationView extends View {
             try {
                 is = new FileInputStream(file);
                 reader = new BufferedReader(new InputStreamReader(is));
-                //line = reader.readLine();
                 while ((line = reader.readLine()) != null) {
                     //Log.d(TAG, "read from file: " + line);
                     readOut += line;
@@ -960,7 +946,6 @@ public class AnimationView extends View {
 				//Log.d(TAG, "set color to blue");
             }
 
-            //this.invalidate();
         } else {
             paint.setColor(Color.BLUE);
         }
