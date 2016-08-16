@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -68,6 +69,8 @@ public class MainActivity extends Activity {
 
     private boolean isBackFromSettings;
     public static SharedPreferences userPref;
+
+    Button restart;
 
 	@SuppressLint("NewApi")
     @Override
@@ -330,6 +333,7 @@ public class MainActivity extends Activity {
 	}
 
     public void restartClicked(View view) {
+        restart = (Button) this.findViewById(R.id.buttonRestart);
         AnimationView.showChart = false;
         AnimationView.resetValues();
 
@@ -340,6 +344,7 @@ public class MainActivity extends Activity {
                     Toast.LENGTH_LONG).show();
 
         AnimationView.count = -1;
+        restart.setVisibility(View.INVISIBLE);
         myView.invalidate();
         onModeAuto();
     }

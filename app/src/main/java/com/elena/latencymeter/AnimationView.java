@@ -10,9 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Path.Direction;
-import android.graphics.PathMeasure;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -62,13 +59,13 @@ public class AnimationView extends View {
 	boolean touchActive;
     //boolean mRunMode;
 
-	Path animPath;
-	Path touchPath;
+	//Path animPath;
+	//Path touchPath;
 
 	Point point = new Point();
 
-	PathMeasure pathMeasure;
-	float pathLength;
+	//PathMeasure pathMeasure;
+	//float pathLength;
 
 	float step; // distance each step
 	public static float distance; // distance moved
@@ -177,8 +174,8 @@ public class AnimationView extends View {
 		bm_offsetX = bm.getWidth() / 2;
 		bm_offsetY = bm.getHeight() / 2;
 
-		animPath = new Path();
-		touchPath = new Path();
+		//animPath = new Path();
+		//touchPath = new Path();
         showChart = false;
 
 		DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -214,7 +211,8 @@ public class AnimationView extends View {
 		paintTouch.setStyle(Paint.Style.FILL_AND_STROKE);
 
 		paintText = new Paint();
-		paintText.setColor(Color.parseColor("#FFA500"));
+		//paintText.setColor(Color.parseColor("#FFA500"));
+        paintText.setColor(STATS_COLOR1);
 		paintText.setStrokeWidth(3);
 		paintText.setTextSize(70 * screenDpi / 4);
 		paintText.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -227,10 +225,10 @@ public class AnimationView extends View {
 		point.x = (int) cX;
 		point.y = (int) cY;
 
-		animPath.addCircle(cX, cY, radius, Direction.CW);
+		//animPath.addCircle(cX, cY, radius, Direction.CW);
 
-		pathMeasure = new PathMeasure(animPath, false);
-		pathLength = pathMeasure.getLength();
+		//pathMeasure = new PathMeasure(animPath, false);
+		//pathLength = pathMeasure.getLength();
 
 		pos = new float[2];
 		tan = new float[2];
@@ -468,9 +466,11 @@ public class AnimationView extends View {
             ///////////////////////////
 
         } else {
-            restart.setVisibility(INVISIBLE);
+            //restart.setVisibility(INVISIBLE); // moved to restartClicked method
             showChart = false;
-            canvas.drawPath(animPath, paint);
+            //canvas.drawPath(animPath, paint);
+            canvas.drawCircle(cX, cY, radius, paint);
+
             final float ballDir = MainActivity.clockWise ? 1.0f : -1.0f;
 
             if (!isAutoDone) {
@@ -519,7 +519,7 @@ public class AnimationView extends View {
                 touchA = 0;
             }
 
-            paintTouch.setColor(Color.GRAY);
+            //paintTouch.setColor(Color.GRAY);
 
             theta = Math
                     .acos(((pos[0] - cX) * (point.x - cX) + (pos[1] - cY)
@@ -595,7 +595,7 @@ public class AnimationView extends View {
             if ((touchActive && (ballDir * sweepAngle) > 0)
                     || (touchDelta > bm_offsetX)) {
 
-                paintText.setColor(Color.RED);
+                //paintText.setColor(Color.RED);
                 paintTouch.setColor(Color.RED);
 
                 if (touchActive && (touchDelta > bm_offsetX)) {
@@ -607,7 +607,7 @@ public class AnimationView extends View {
                 }
             } else if (touchDelta <= bm_offsetX) {
 
-                paintText.setColor(Color.BLACK);
+                //paintText.setColor(Color.BLACK);
                 paintTouch.setColor(Color.GRAY);
 
             }
@@ -642,7 +642,7 @@ public class AnimationView extends View {
             }
 
             if (touchActive && myLatency.size() < samples && isAutoDone) {
-                paintText.setColor(STATS_COLOR2);
+                //paintText.setColor(STATS_COLOR2);
 
                 //canvas.drawText("" + (samples - myLatency.size()), cX - 40,
                 //        cY, paintText);
@@ -652,7 +652,7 @@ public class AnimationView extends View {
                 canvas.drawText(Long.toString(eventRateInt) + " Hz", cX - 80,
                                 cY, paintText);
             } else if (touchActive && isAutoDone) {
-                paintText.setColor(STATS_COLOR1);
+
                 canvas.drawText("DONE", cX - 80, cY, paintText);
                 canvas.drawArc(ovalProgress, 0, 360, false,
                         paintProgress);
