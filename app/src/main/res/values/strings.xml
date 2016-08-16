@@ -8,6 +8,7 @@
     <string name="reverse">CCW</string>
     <string name="trace">trace</string>
     <string name="latency">latency:</string>
+    <string name="event">event rate:</string>
     <string name="ic">IC/Kernel:</string>
     <string name="disp">dispatch:</string>
     <string name="output">output:</string>

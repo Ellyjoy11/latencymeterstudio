@@ -21,6 +21,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -57,7 +59,7 @@ public class AnimationView extends View {
     float ballAngle = 0;
 
 	boolean touchActive;
-    //boolean mRunMode;
+    boolean isPlaying = true;
 
 	//Path animPath;
 	//Path touchPath;
@@ -143,6 +145,7 @@ public class AnimationView extends View {
     public static String noiseState;
     public static boolean showChart;
     Button restart;
+    ImageButton playPause;
 
     private RectF oval = null;
     private RectF ovalProgress;
@@ -274,6 +277,7 @@ public class AnimationView extends View {
 
     void lookupViews() {
         restart = (Button) this.getRootView().findViewById(R.id.buttonRestart);
+        playPause = (ImageButton) this.getRootView().findViewById(R.id.playPause);
         tvSpeed = (TextView) this.getRootView().findViewById(R.id.textViewSpeed);
 		tvIC = (TextView) this.getRootView().findViewById(R.id.textViewIC);
 		tvDisp = (TextView) this.getRootView().findViewById(R.id.textViewDisp);
@@ -329,6 +333,7 @@ public class AnimationView extends View {
                     + " ms");
             statsColor = STATS_COLOR1;
             showChart = true;
+            playPause.setVisibility(INVISIBLE);
         } else {
             tvTotal.setTypeface(Typeface.DEFAULT);
             tvTotal_w.setTypeface(Typeface.DEFAULT);
@@ -336,6 +341,7 @@ public class AnimationView extends View {
             tvTotal.setText(" --");
             statsColor = STATS_COLOR2;
             showChart = false;
+            playPause.setVisibility(VISIBLE);
         }
 
         tvMin.setText(String.format("%.2f", minL) + " ms");
@@ -469,6 +475,9 @@ public class AnimationView extends View {
             //restart.setVisibility(INVISIBLE); // moved to restartClicked method
             showChart = false;
             //canvas.drawPath(animPath, paint);
+            if (touchActive) {
+                playPause.setVisibility(INVISIBLE);
+            }
             canvas.drawCircle(cX, cY, radius, paint);
 
             final float ballDir = MainActivity.clockWise ? 1.0f : -1.0f;
@@ -659,7 +668,9 @@ public class AnimationView extends View {
             }
 
             ballAngle += ballDir * speed / currFps;
-            invalidate();
+            if (isPlaying) {
+                invalidate();
+            }
         }
 
 	}
@@ -678,6 +689,7 @@ public class AnimationView extends View {
                     resetValues();
                     //Log.d(TAG, "start counting, autoDone " + isAutoDone);
                     millis3 = SystemClock.elapsedRealtime();
+
                     break;
                 case MotionEvent.ACTION_MOVE:
                     point.x = (int) event.getX();
@@ -880,6 +892,20 @@ public class AnimationView extends View {
         samples = MainActivity.samples;
         tvSpeed.setText(String.format("speed\n%.2f rad/s", speed));
 	}
+
+    public void setIsPlaying(boolean needPlay) {
+        isPlaying = needPlay;
+    }
+
+    public void setPauseButton() {
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80, 80);
+        params.leftMargin = cX - 40;
+        params.topMargin = cY - 40;
+        playPause.setLayoutParams(params);
+        Log.d(TAG, "button set");
+
+    }
 
     public void setSamplingWindow (int winStart, int winEnd) {
         windowStart = winStart;

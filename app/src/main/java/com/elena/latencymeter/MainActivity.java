@@ -113,6 +113,7 @@ public class MainActivity extends Activity {
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
 		myView = (AnimationView) findViewById(R.id.animView);
 		myView.lookupViews();
+        myView.setPauseButton();
         myView.count = -1;
 
 		defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
@@ -347,6 +348,11 @@ public class MainActivity extends Activity {
         restart.setVisibility(View.INVISIBLE);
         myView.invalidate();
         onModeAuto();
+    }
+
+    public void pauseClicked(View view) {
+        myView.setIsPlaying(!myView.isPlaying);
+        myView.invalidate();
     }
 
     public void onModeAuto() {
