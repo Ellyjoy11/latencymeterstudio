@@ -22,14 +22,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,59 +35,48 @@ public class AnimationView extends View {
 
 	public static final String TAG = "LatencyMeter";
 	Paint paint, paintText, paintTouch, paintStat, autoPaint, paintAxis, paintPoint;
-	Paint wrongMove, paintProgress;
+	Paint wrongMove, paintProgress, paintText2, paintYellow, paintBlue;
 
     public SharedPreferences userPref;
 
 	Bitmap bm;
-
 	int bm_offsetX, bm_offsetY;
-
-    float circleWide;
 
 	double rawA;
 	float startAngle;
 	float touchAngle;
 	float sweepAngle;
-	float delta;
     float ballAngle = 0;
 
 	boolean touchActive;
     boolean isPlaying = true;
 
-	//Path animPath;
-	//Path touchPath;
-
 	Point point = new Point();
-
-	//PathMeasure pathMeasure;
-	//float pathLength;
-
-	float step; // distance each step
-	public static float distance; // distance moved
 
 	float[] pos;
 	float[] tan;
 
 	Matrix matrix;
 	public static int count = -1;
-	long millis1, millis2, millis3, millis4;
-	long time360 = 0;
+	long millis3, millis4;
 	long dispatchTime = 0;
+
     public static int touchCount = 0;
 	public static double speed = 0;
+
     public static double latency;
     public static double averageLatency;
-    public static double averageEvRate;
+    //public static double averageEvRate;
     public static double averageDispatchLatency;
     public static double averageOutputLatency = 0;
+
     public static double median, minL, maxL;
     public static double minChart, maxChart;
-    public static double medianEv, minEv, maxEv;
+    //public static double medianEv, minEv, maxEv;
     public static double stdevLatency;
     public static double eventRate;
     private static long eventRateInt;
-    public static double stdevEv;
+    //public static double stdevEv;
 
     public static List<Double> myLatency = new ArrayList<Double>();
     public static List<Long> dispatchLatency = new ArrayList<Long>();
@@ -130,10 +113,13 @@ public class AnimationView extends View {
     TextView tvDisp, tvOut, tvTotal, tvEvRate;
     TextView tvIC_w, tvMin_w, tvMax_w, tvMed_w, tvStd_w;
     TextView tvDisp_w, tvOut_w, tvTotal_w;
-    int currFps = 59;
+
+    int currFps = 60;
+
     int lowEdge;
     int multiplier;
-	public static int samples;
+
+    public static int samples;
 
     public static int windowStart;
     public static int windowEnd;
@@ -142,14 +128,15 @@ public class AnimationView extends View {
 
     float textSize;
 
-    public static String noiseState;
+    public static int noiseState;
     public static boolean showChart;
+
     Button restart;
     ImageButton playPause;
 
     private RectF oval = null;
     private RectF ovalProgress;
-    private int eventRatePrev = -1;
+
     private int statsTextColorPrev = Color.TRANSPARENT;
     private static final int STATS_COLOR1 = Color.parseColor("#008000");
     private static final int STATS_COLOR2 = Color.parseColor("#FFA500");
@@ -177,8 +164,6 @@ public class AnimationView extends View {
 		bm_offsetX = bm.getWidth() / 2;
 		bm_offsetY = bm.getHeight() / 2;
 
-		//animPath = new Path();
-		//touchPath = new Path();
         showChart = false;
 
 		DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -189,7 +174,6 @@ public class AnimationView extends View {
 		screenHeight = displaymetrics.heightPixels;
 		screenDpi = displaymetrics.density;
 
-
 		cX = (screenWidth - bm_offsetX / 2 - 10) / 2;
 		cY = screenHeight - cX - 2 * bm_offsetY;
 
@@ -198,10 +182,18 @@ public class AnimationView extends View {
         radMax = radius + bm_offsetX / 2;
 
 		paint = new Paint();
-		//paint.setColor(Color.BLUE);
 		paint.setStrokeWidth(bm_offsetX);
 		paint.setStyle(Paint.Style.STROKE);
-        noiseState = setPathColor();
+
+        paintBlue = new Paint();
+        paintBlue.setStrokeWidth(bm_offsetX);
+        paintBlue.setStyle(Paint.Style.STROKE);
+        paintBlue.setColor(Color.BLUE);
+
+        paintYellow = new Paint();
+        paintYellow.setStrokeWidth(bm_offsetX);
+        paintYellow.setStyle(Paint.Style.STROKE);
+        paintYellow.setColor(Color.parseColor("#ffa500"));
 
         autoPaint = new Paint();
         autoPaint.setColor(Color.parseColor("#81d8d0"));
@@ -214,11 +206,16 @@ public class AnimationView extends View {
 		paintTouch.setStyle(Paint.Style.FILL_AND_STROKE);
 
 		paintText = new Paint();
-		//paintText.setColor(Color.parseColor("#FFA500"));
-        paintText.setColor(STATS_COLOR1);
+		paintText.setColor(Color.parseColor("#FFA500"));
 		paintText.setStrokeWidth(3);
 		paintText.setTextSize(70 * screenDpi / 4);
 		paintText.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        paintText2 = new Paint();
+        paintText2.setColor(STATS_COLOR1);
+        paintText2.setStrokeWidth(4);
+        paintText2.setTextSize(80 * screenDpi / 4);
+        paintText2.setStyle(Paint.Style.FILL_AND_STROKE);
 
 		wrongMove = new Paint();
 		wrongMove.setColor(Color.RED);
@@ -227,11 +224,6 @@ public class AnimationView extends View {
 
 		point.x = (int) cX;
 		point.y = (int) cY;
-
-		//animPath.addCircle(cX, cY, radius, Direction.CW);
-
-		//pathMeasure = new PathMeasure(animPath, false);
-		//pathLength = pathMeasure.getLength();
 
 		pos = new float[2];
 		tan = new float[2];
@@ -322,7 +314,7 @@ public class AnimationView extends View {
 
     void updateStatsViews() {
 
-        Log.d(TAG, "update views function called");
+        //Log.d(TAG, "update views function called");
 
         if (averageLatency > 0) {
             tvTotal.setTypeface(Typeface.DEFAULT_BOLD);
@@ -333,7 +325,9 @@ public class AnimationView extends View {
                     + " ms");
             statsColor = STATS_COLOR1;
             showChart = true;
+            //Log.d(TAG, "setting showChart to true");
             playPause.setVisibility(INVISIBLE);
+            restart.setVisibility(VISIBLE);
         } else {
             tvTotal.setTypeface(Typeface.DEFAULT);
             tvTotal_w.setTypeface(Typeface.DEFAULT);
@@ -385,7 +379,6 @@ public class AnimationView extends View {
         //Log.d(TAG, "multiplier and samples: " + multiplier + "..." + samples);
 
         if (showChart) {
-            restart.setVisibility(VISIBLE);
             recalcStats();
             paintAxis.setColor(Color.BLACK);
             paintAxis.setStrokeWidth(3);
@@ -393,7 +386,6 @@ public class AnimationView extends View {
             canvas.drawLine(x1,y1-20,x1,y2,paintAxis);
             double yMax = Math.round(maxChart + 1 );
             double yMin = Math.round(minChart - 1);
-            //float xStep = (x2 - x1)/(samples+1);
             sampleShow = samples / (x2 - x1 - layoutPads) + 1;
             xStep = sampleShow * (x2 - x1 - layoutPads)/(samples+1);
             //Log.d(TAG, "axis and step: " + (x2-x1 - layoutPads) + ".." + xStep);
@@ -472,10 +464,7 @@ public class AnimationView extends View {
             ///////////////////////////
 
         } else {
-            //restart.setVisibility(INVISIBLE); // moved to restartClicked method
-            showChart = false;
-            //canvas.drawPath(animPath, paint);
-            if (touchActive) {
+            if (playPause.getVisibility() == VISIBLE && touchActive) {
                 playPause.setVisibility(INVISIBLE);
             }
             canvas.drawCircle(cX, cY, radius, paint);
@@ -528,8 +517,6 @@ public class AnimationView extends View {
                 touchA = 0;
             }
 
-            //paintTouch.setColor(Color.GRAY);
-
             theta = Math
                     .acos(((pos[0] - cX) * (point.x - cX) + (pos[1] - cY)
                             * (point.y - cY))
@@ -548,9 +535,7 @@ public class AnimationView extends View {
             }
 
             // ////////////////try to fill sector///////////
-           // oval.set((float) (cX - radius),
-             //       (float) (cY - radius), (float) (cX + radius),
-               //     (float) (cY + radius)); // oval set is moved to init part
+
             if (!(pos[1] == cY)) {
                 rawA = Math.atan2(pos[1] - cY, pos[0] - cX);
             } else if (pos[0] < cX) {
@@ -604,7 +589,6 @@ public class AnimationView extends View {
             if ((touchActive && (ballDir * sweepAngle) > 0)
                     || (touchDelta > bm_offsetX)) {
 
-                //paintText.setColor(Color.RED);
                 paintTouch.setColor(Color.RED);
 
                 if (touchActive && (touchDelta > bm_offsetX)) {
@@ -616,7 +600,6 @@ public class AnimationView extends View {
                 }
             } else if (touchDelta <= bm_offsetX) {
 
-                //paintText.setColor(Color.BLACK);
                 paintTouch.setColor(Color.GRAY);
 
             }
@@ -639,30 +622,25 @@ public class AnimationView extends View {
                 //Log.d(TAG, "..." + latency + "..." + averageOutputLatency + "..." + dispatchTime + "..." + noiseState);
                 if (latency > lowEdge && latency < 220
                         && myLatency.size() < samples && isAutoDone
-                        && ((noiseState.equals("1") && ((latency
-                        - averageOutputLatency - dispatchTime) < (multiplier * 1000 / eventRate))) || noiseState.isEmpty() ||
-                        noiseState.equals("2"))) { // 30
-                    // is set to exclude "cheating" samples
+                        && (((noiseState == 1) && ((latency
+                        - averageOutputLatency - dispatchTime) < (multiplier * 1000 / eventRate))) || noiseState == 0 ||
+                        noiseState == 2)) {
+                    // lowEdge is set to exclude "cheating" samples
                     myLatency.add(latency);
-
                 }
             } else {
                 latency = 0;
             }
 
             if (touchActive && myLatency.size() < samples && isAutoDone) {
-                //paintText.setColor(STATS_COLOR2);
 
-                //canvas.drawText("" + (samples - myLatency.size()), cX - 40,
-                //        cY, paintText);
                 canvas.drawArc(ovalProgress, 0, ballDir * 360 * myLatency.size() / samples, false,
                         paintProgress);
-
                 canvas.drawText(Long.toString(eventRateInt) + " Hz", cX - 80,
                                 cY, paintText);
             } else if (touchActive && isAutoDone) {
 
-                canvas.drawText("DONE", cX - 80, cY, paintText);
+                canvas.drawText("DONE", cX - 80, cY, paintText2);
                 canvas.drawArc(ovalProgress, 0, 360, false,
                         paintProgress);
             }
@@ -751,8 +729,8 @@ public class AnimationView extends View {
                         }
 
                     }
+                    //Log.d(TAG, "call calculation");
                     recalcStats();
-
                     break;
 
             }
@@ -835,7 +813,7 @@ public class AnimationView extends View {
 	}
 
     public static void recalcStats() {
-
+            //Log.d(TAG, "recalc stats called, samples collected: " + myLatency.size());
             if (myLatency.size() == samples) {
 
                 double sum = 0;
@@ -853,6 +831,7 @@ public class AnimationView extends View {
                 }
 
                 averageLatency = sum * 1.0 / (windowEnd - windowStart + 1);
+                //Log.d(TAG, "average latency " + averageLatency);
 
                 if (isAutoDone) {
                     for (int i = 0; i < dispatchLatency.size(); i++) {
@@ -883,7 +862,7 @@ public class AnimationView extends View {
                 }
             }
 
-       MainActivity.updateStats();
+        MainActivity.updateStats();
     }
 
 	public void setBallSpeed(float bSpeed) {
@@ -897,14 +876,18 @@ public class AnimationView extends View {
         isPlaying = needPlay;
     }
 
-    public void setPauseButton() {
+    public void setCircleColor(int noiseFile) {
 
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80, 80);
-        params.leftMargin = cX - 40;
-        params.topMargin = cY - 40;
-        playPause.setLayoutParams(params);
-        Log.d(TAG, "button set");
-
+        if (noiseFile == 2) {
+            //paint.setColor(Color.parseColor("#ffa500"));
+            paint = paintYellow;
+            //Log.d(TAG, "set color to yellow");
+        } else {
+            //paint.setColor(Color.BLUE);
+            //Log.d(TAG, "set color to blue");
+            paint = paintBlue;
+        }
+        noiseState = noiseFile;
     }
 
     public void setSamplingWindow (int winStart, int winEnd) {
@@ -936,48 +919,7 @@ public class AnimationView extends View {
         touchCount = 0;
 
         MainActivity.updateStats();
-    }
 
-    @SuppressLint("NewApi")
-    public String setPathColor() {
-
-        FileInputStream is;
-        BufferedReader reader;
-        String readOut = "";
-        String line;
-        File file = new File(MainActivity.touchFWPath + "/f54/d10_noise_state");
-
-        if (file.exists()) {
-            try {
-                is = new FileInputStream(file);
-                reader = new BufferedReader(new InputStreamReader(is));
-                while ((line = reader.readLine()) != null) {
-                    //Log.d(TAG, "read from file: " + line);
-                    readOut += line;
-                }
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (!readOut.isEmpty()) {
-            //Log.d(TAG, "reading noise state: " + readOut);
-
-            if (readOut.equals("2")) {
-                paint.setColor(Color.parseColor("#ffa500"));
-				//Log.d(TAG, "set color to yellow");
-            }
-            else {
-                paint.setColor(Color.BLUE);
-				//Log.d(TAG, "set color to blue");
-            }
-
-        } else {
-            paint.setColor(Color.BLUE);
-        }
-
-        return readOut;
     }
 
     private void simulateTouchCancel (int simMode) {
@@ -1003,5 +945,9 @@ public class AnimationView extends View {
 
         this.dispatchTouchEvent(motionEvent);
     }
+
+    ////////////////
+
+    ///////////////
 
 }

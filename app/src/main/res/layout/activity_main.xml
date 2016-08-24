@@ -272,7 +272,7 @@
         android:background="@android:color/transparent"
         android:scaleType="fitXY"
         android:adjustViewBounds="true"
-        android:src="@drawable/play_pause"
+        android:src="@drawable/stop"
         android:onClick="pauseClicked"
         />
 

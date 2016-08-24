@@ -9,6 +9,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Process;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
@@ -19,6 +22,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -29,6 +34,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+//import java.util.concurrent.Semaphore;
 
 public class MainActivity extends Activity {
 
@@ -45,12 +52,11 @@ public class MainActivity extends Activity {
     public static int windowStart;
     public static int windowEnd;
     private static MainActivity myActivity;
+    public static MonitorNoiseState mThreadForData;
 
 	public static final String TAG = "LatencyMeter";
 	public String appVersion;
-	//public final String MYPREFS = "my shared prefs";
-    SharedPreferences prefs;
-    private String tmp;
+
     private String manufacturer, model_name, device_name;
     private static File[] list1;
     private static File[] list2;
@@ -71,6 +77,14 @@ public class MainActivity extends Activity {
     public static SharedPreferences userPref;
 
     Button restart;
+    ImageButton playPause;
+
+    private static RandomAccessFile noiseF;
+    private static int nState;
+    static Handler mHandler;
+    Message msg;
+    int readOut = 0;
+    int prevNoiseState;
 
 	@SuppressLint("NewApi")
     @Override
@@ -89,6 +103,9 @@ public class MainActivity extends Activity {
 		}
 
 		setContentView(R.layout.activity_main);
+
+        restart = (Button) this.findViewById(R.id.buttonRestart);
+        playPause = (ImageButton) this.findViewById(R.id.playPause);
 
         manufacturer = Build.MANUFACTURER;
         model_name = Build.MODEL;
@@ -113,7 +130,7 @@ public class MainActivity extends Activity {
 		speedBar = (SeekBar) findViewById(R.id.speedBar);
 		myView = (AnimationView) findViewById(R.id.animView);
 		myView.lookupViews();
-        myView.setPauseButton();
+        setPauseButton();
         myView.count = -1;
 
 		defaultSpeed = (float) (speedBar.getProgress()) * 10.0f
@@ -122,11 +139,22 @@ public class MainActivity extends Activity {
 		speedBar.setOnSeekBarChangeListener(speedBarOnSeekBarChangeListener);
 
         touchInfo = (TextView) findViewById(R.id.infoText);
-		//TODO read config ID etc.
 
         touchFWPath = getTouchFWPath();
         touchCfg = getTouchCfg();
         panel = getPanelType();
+
+        try {
+            noiseF = new RandomAccessFile(touchFWPath + "/f54/d10_noise_state", "r");
+            noiseF.seek(0);
+            nState = Character.getNumericValue ((char) noiseF.read());
+        } catch (IOException e) {
+            nState = 0;
+            e.printStackTrace();
+        }
+        Log.d(TAG, "initial noise state " + nState);
+        myView.setCircleColor(nState);
+
         String touchInfoText = "";
 
         if (!touchCfg.isEmpty()) {
@@ -139,6 +167,19 @@ public class MainActivity extends Activity {
 			touchInfo.setText(touchInfoText);
 
         myActivity = this;
+
+        /////////////
+        mHandler = new Handler() {
+            @Override
+            public void handleMessage (Message msg) {
+                //super.handleMessage(msg);
+                //TODO
+                Log.d(TAG, "Handler's got message to process");
+                        myView.setCircleColor(msg.what);
+                    }
+            };
+
+                ////////////
     }
 
     @Override
@@ -173,6 +214,7 @@ public class MainActivity extends Activity {
         if (displayTransmissionDelay != oldDisplayTransmissionDelay) {
             oldDisplayTransmissionDelay = displayTransmissionDelay;
             myView.showChart = false;
+            restart.setVisibility(View.INVISIBLE);
             AnimationView.isAutoDone = false;
             AnimationView.resetValues();
             AnimationView.count = -1;
@@ -184,6 +226,7 @@ public class MainActivity extends Activity {
             oldSamples = samples;
             AnimationView.resetValues();
             AnimationView.showChart = false;
+            restart.setVisibility(View.INVISIBLE);
         }
         windowStart = Integer.parseInt(userPref.getString("start", "1"));
         windowEnd = Integer.parseInt(userPref.getString("end", Integer.toString(samples)));
@@ -235,14 +278,19 @@ public class MainActivity extends Activity {
         myView.setBallSpeed(defaultSpeed);
         myView.setSamplingWindow(windowStart-1, windowEnd-1);
         myView.invalidate();
+
         if (!AnimationView.isAutoDone) {
             Toast.makeText(
                     this,
                     "When the ball appears,\nkeep your finger on it",
                     Toast.LENGTH_LONG).show();
         }
-
         onModeAuto();
+
+        if (nState > 0) {
+            mThreadForData = new MonitorNoiseState();
+            mThreadForData.start();
+        }
 
 	}
 
@@ -258,7 +306,7 @@ public class MainActivity extends Activity {
 		if (item.getItemId() == R.id.about) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-			builder.setMessage("\u00a9 2014-2015 Elena Last").setTitle(
+			builder.setMessage("\u00a9 2014-2016 Elena Last").setTitle(
 					"Latency Meter v." + appVersion);
 
 			builder.setPositiveButton("OK",
@@ -281,9 +329,7 @@ public class MainActivity extends Activity {
             startActivity(intent);
             return true;
         }
-
 			return super.onOptionsItemSelected(item);
-
 
 	}
 
@@ -297,9 +343,15 @@ public class MainActivity extends Activity {
 			myView.setBallSpeed(defaultSpeed);
             myView.showChart = false;
             myView.resetValues();
+            restart.setVisibility(View.INVISIBLE);
 			myView.invalidate();
 
             onModeAuto();
+
+            if (nState > 0 && !mThreadForData.isAlive()) {
+                mThreadForData = new MonitorNoiseState();
+                mThreadForData.start();
+            }
 		}
 
 		@Override
@@ -318,8 +370,6 @@ public class MainActivity extends Activity {
 		} else {
 			clockWise = true;
 		}
-
-		myView.invalidate();
         onModeAuto();
 	}
 
@@ -329,12 +379,9 @@ public class MainActivity extends Activity {
 		} else {
 			showSector = false;
 		}
-		//Log.d(TAG, "show sector: " + showSector);
-
 	}
 
     public void restartClicked(View view) {
-        restart = (Button) this.findViewById(R.id.buttonRestart);
         AnimationView.showChart = false;
         AnimationView.resetValues();
 
@@ -348,18 +395,42 @@ public class MainActivity extends Activity {
         restart.setVisibility(View.INVISIBLE);
         myView.invalidate();
         onModeAuto();
+
+        if (nState > 0 && !mThreadForData.isAlive()) {
+            mThreadForData = new MonitorNoiseState();
+            mThreadForData.start();
+        }
+
     }
+
+    public void setPauseButton() {
+
+        final int buttonSize = (int) (myView.screenDpi * 50 + 0.5f);
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(buttonSize, buttonSize);
+        params.leftMargin = myView.cX - buttonSize/2;
+        params.topMargin = myView.cY - buttonSize/2;
+        playPause.setLayoutParams(params);
+        Log.d(TAG, "button set");
+
+    }
+
 
     public void pauseClicked(View view) {
         myView.setIsPlaying(!myView.isPlaying);
-        myView.invalidate();
+        if (myView.isPlaying) {
+            playPause.setImageResource(R.drawable.stop);
+            myView.invalidate();
+        } else {
+            playPause.setImageResource(R.drawable.play);
+        }
     }
 
     public void onModeAuto() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!AnimationView.isAutoDone) {
+                while (!AnimationView.isAutoDone && myActivity != null) {
                     simulateTouch(AnimationView.prevX, AnimationView.prevY, AnimationView.count);
                     //Log.d(TAG, "Ball coords: " + AnimationView.prevX + "; " + AnimationView.prevY + "count " + AnimationView.count);
                     }
@@ -379,9 +450,6 @@ public class MainActivity extends Activity {
             action = MotionEvent.ACTION_MOVE;
         } else if (count == 200) {
             action = MotionEvent.ACTION_UP;
-           //modeAuto = false;
-            //Log.d(TAG, "mode set to false");
-            //x = 0; y = 0;
         } else {
             action = MotionEvent.ACTION_CANCEL;
         }
@@ -407,7 +475,7 @@ public class MainActivity extends Activity {
 
     public static String getTouchFWPath() {
 
-        String touchPath = "/sys/bus/i2c/devices/";// +"2-0020";
+        String touchPath = "/sys/bus/i2c/devices/";
         String exactFolder = "";
         String fwPattern1 = "(?i).*(\\w{1}-\\w{4}).*";
 
@@ -481,7 +549,7 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
         }
-        //myView.invalidate();
+
         return readOut;
     }
 
@@ -496,5 +564,44 @@ public class MainActivity extends Activity {
         return panel;
     }
 
+    //////////////
+    public class MonitorNoiseState extends Thread {
+
+        MonitorNoiseState() {}
+        ///
+        @Override
+        public void run() {
+            android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_LOWEST);
+
+            prevNoiseState = nState;
+
+                while (!myView.showChart && myActivity != null) {
+
+                    try {
+                        noiseF.seek(0);
+                        readOut = Character.getNumericValue ((char) noiseF.read());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    //Log.d(TAG, "current noise state: " + readOut);
+                    if (readOut > 0) {
+                        if (readOut != prevNoiseState) {
+                            prevNoiseState = readOut;
+                            msg = mHandler.obtainMessage(readOut);
+                            mHandler.sendMessage(msg);
+                            //Log.d(TAG, "noise state has been changed!!!");
+                        }
+                    }
+                    try {
+                        Thread.sleep(1000);
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+        }
+
+    }
+    /////////////
 
 }
